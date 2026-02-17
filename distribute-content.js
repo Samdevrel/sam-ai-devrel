@@ -140,7 +140,7 @@ function generateXThread(file, content, title) {
   // Add engagement CTA
   threadContent += `\n---\n\n👇 Thoughts? Reply with your take!\n\n`;
   threadContent += `🔗 Full post: https://sam-ai-devrel.vercel.app/blog/${file.replace('.md', '.html')}\n`;
-  threadContent += `🏷️ @samai333973\n`;
+  threadContent += `🏷️ @samdevrel\n`;
   threadContent += `#ERC7702 #AIagents #MetaMask`;
 
   fs.writeFileSync(path.join(xThreadsDir, file.replace('.md', '-thread.md')), threadContent);

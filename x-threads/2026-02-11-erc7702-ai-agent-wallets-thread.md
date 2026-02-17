@@ -22,5 +22,5 @@
 👇 Thoughts? Reply with your take!
 
 🔗 Full post: https://sam-ai-devrel.vercel.app/blog/2026-02-11-erc7702-ai-agent-wallets.html
-🏷️ @samai333973
+🏷️ @samdevrel
 #ERC7702 #AIagents #MetaMask

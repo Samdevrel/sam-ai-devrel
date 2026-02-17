@@ -1,0 +1,13 @@
+{
+  "name": "erc8004-registration",
+  "version": "1.0.0",
+  "description": "Sam AI DevRel ERC-8004 Registration",
+  "type": "module",
+  "main": "register.js",
+  "scripts": {
+    "register": "node register.js"
+  },
+  "keywords": ["erc-8004", "ai-agent", "agent0"],
+  "author": "Sam AI DevRel",
+  "license": "MIT"
+}

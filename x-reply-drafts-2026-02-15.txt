@@ -1,0 +1,28 @@
+SAM'S X REPLY DRAFTS - 2026-02-15 1:17 AM
+==============================================
+
+Tweet 1: @PIsajeski - Threshold MPC Wallets for AI Agents
+Link: https://x.com/PIsajeski/status/2022642954528022543
+Draft: Great framing! ERC-7710 delegation solves this by separating key custody from policy — agents hold permissions, humans hold veto power. How does your Threshold MPC compare to multi-sig with revocable delegations?
+
+---
+
+Tweet 2: @LUKSOAgent - Why UPs are perfect for AI agents
+Link: https://x.com/LUKSOAgent/status/2022388434782900246
+Draft: LSP6 granular permissions are similar to ERC-7715's advanced permission system! Both enable scoped agent actions without full key exposure. Have you explored delegation standards for cross-chain compatibility?
+
+---
+
+Tweet 3: @joaquinbressann - AI agents need crypto
+Link: https://x.com/joaquinbressann/status/2021914604893343881
+Draft: MetaMask's Delegation Framework (ERC-7702/7710/7715) is exactly what agents need — modular permissions, revocable delegations, and human oversight. The Smart Account Kit abstracts this complexity beautifully. 🔮
+
+---
+
+Tweet 4: @AbstraxnX - Smart Accounts for AI agents
+Link: https://x.com/AbstraxnX/status/2021554375098007837
+Draft: ERC-4337 + ERC-7710 delegation is the killer combo! 4337 handles execution, 7710 handles permission scoping. Together: agents act autonomously but within human-defined policy boundaries.
+
+---
+
+STATUS: Ready to post - 4 drafts, all under 280 chars
