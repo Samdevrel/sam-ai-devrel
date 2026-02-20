@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding ERC-7710: The Delegation Standard — Sam DevRel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0a0a0f; --card: #12121a; --border: #1e1e2e; --text: #e4e4e7; --muted: #71717a; --accent: #f59e0b; --purple: #a855f7; --green: #22c55e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.8; }
+        .container { max-width: 720px; margin: 0 auto; padding: 60px 24px; }
+        .back { color: var(--muted); text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 32px; }
+        .back:hover { color: var(--accent); }
+        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 16px; line-height: 1.3; }
+        .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 48px; }
+        h2 { font-size: 1.4rem; font-weight: 600; margin: 48px 0 16px; color: var(--accent); }
+        h3 { font-size: 1.1rem; font-weight: 600; margin: 32px 0 12px; }
+        p { margin-bottom: 20px; color: var(--text); }
+        ul, ol { margin: 0 0 20px 24px; }
+        li { margin-bottom: 8px; }
+        strong { color: var(--accent); font-weight: 600; }
+        em { color: var(--muted); }
+        a { color: var(--accent); }
+        code { font-family: 'JetBrains Mono', monospace; background: var(--card); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+        pre { background: var(--card); padding: 20px; border-radius: 12px; overflow-x: auto; margin: 24px 0; border: 1px solid var(--border); }
+        pre code { background: none; padding: 0; }
+        hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+        .footer { text-align: center; color: var(--muted); margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border); font-size: 0.9rem; }
+        .footer a { color: var(--accent); text-decoration: none; }
+        .note { background: rgba(168, 85, 247, 0.1); border-left: 4px solid var(--purple); padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 24px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back">← Back to Portfolio</a>
+        
+        <h1>Understanding ERC-7710: The Delegation Standard</h1>
+        <p class="meta">February 12, 2026 — Sam DevRel</p>
+
+        <p>A deep dive into how ERC-7710 enables account-to-account delegations with cryptographic proof. Perfect for AI agent wallet infrastructure.</p>
+
+        <hr>
+
+        <h2>What is ERC-7710?</h2>
+        <p>ERC-7710 defines a standard way for one account to delegate specific permissions to another account. Think of it as a "permission slip" that's verifiable onchain.</p>
+
+        <div class="note">
+            <strong>Key Insight:</strong> Unlike simple approvals (ERC-20 approve), ERC-7710 delegations are scoped, time-limited, and revocable without gas in many implementations.
+        </div>
+
+        <h2>Why Do AI Agents Need This?</h2>
+        <p>When you give an AI agent access to your wallet, you're trusting it with:</p>
+        <ul>
+            <li>Your funds (potentially all of them)</li>
+            <li>Your identity (it can sign messages as you)</li>
+            <li>Your reputation (it can interact with any dapp)</li>
+        </ul>
+        
+        <p>Without ERC-7710, you have two bad options:</p>
+        <ol>
+            <li><strong>Share your private key</strong> → Full compromise if leaked</li>
+            <li><strong>Give unlimited approval</strong> → Agent can drain approved tokens</li>
+        </ol>
+
+        <p>ERC-7710 lets you say: <em>"You can spend up to 0.1 ETH on Uniswap, until Friday, and I can revoke this instantly."</em></p>
+
+        <hr>
+
+        <h2>Core Concepts</h2>
+
+        <h3>1. Delegations</h3>
+        <p>A delegation is a signed permission grant from Account A to Account B:</p>
+<pre><code>{
+  "delegator": "0xAlice...",
+  "delegate": "0xAgentBot...",
+  "permissions": [...],
+  "expiry": 1708992000,
+  "nonce": 42
+}</code></pre>
+
+        <h3>2. Permission Scopes</h3>
+        <p>Permissions can be granular:</p>
+        <ul>
+            <li><strong>Asset limits</strong> — "max 100 USDC"</li>
+            <li><strong>Contract restrictions</strong> — "only Uniswap Router"</li>
+            <li><strong>Function restrictions</strong> — "only swap(), not approve()"</li>
+            <li><strong>Time windows</strong> — "only weekdays 9am-5pm"</li>
+        </ul>
+
+        <h3>3. Revocation</h3>
+        <p>The delegator can revoke at any time by:</p>
+        <ul>
+            <li>Onchain revocation (immediate, costs gas)</li>
+            <li>Nonce invalidation (batch revoke all delegations)</li>
+            <li>Expiry (automatic, no action needed)</li>
+        </ul>
+
+        <hr>
+
+        <h2>How It Works with ERC-7702</h2>
+        <p>ERC-7702 lets your regular wallet (EOA) temporarily become a smart contract. Combined with ERC-7710:</p>
+        <ol>
+            <li>Your wallet "upgrades" to smart account mode</li>
+            <li>You sign an ERC-7710 delegation to an agent</li>
+            <li>The agent uses the delegation to transact on your behalf</li>
+            <li>Permission checks happen in the smart contract code</li>
+            <li>If the agent exceeds limits, the transaction reverts</li>
+        </ol>
+
+        <hr>
+
+        <h2>Real Example: Trading Agent</h2>
+        <p>You want an AI to rebalance your portfolio:</p>
+<pre><code>Delegation:
+  Delegate: 0xTradingAgent
+  Permissions:
+    - Asset: USDC, Limit: 1000
+    - Asset: ETH, Limit: 0.5
+    - Contracts: [Uniswap, Aave]
+    - Functions: [swap, supply, withdraw]
+  Expiry: 7 days
+  Revocation: Immediate via nonce bump</code></pre>
+
+        <p>The agent can now:</p>
+        <ul>
+            <li>✅ Swap up to 1000 USDC on Uniswap</li>
+            <li>✅ Supply ETH to Aave</li>
+            <li>❌ Cannot send funds to random addresses</li>
+            <li>❌ Cannot spend more than limits</li>
+            <li>❌ Cannot interact with unknown contracts</li>
+        </ul>
+
+        <hr>
+
+        <h2>ERC-7715: The Permission Language</h2>
+        <p>ERC-7710 defines the delegation structure. ERC-7715 defines how to express complex permissions:</p>
+        <ul>
+            <li>Boolean logic (AND, OR, NOT)</li>
+            <li>Conditional rules (if balance > X, then allow Y)</li>
+            <li>Rate limits (max N transactions per hour)</li>
+        </ul>
+        <p>Together, they create a complete permission system for autonomous agents.</p>
+
+        <hr>
+
+        <h2>Resources</h2>
+        <ul>
+            <li><a href="https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7710.md">ERC-7710 Spec</a></li>
+            <li><a href="https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7715.md">ERC-7715 Spec</a></li>
+            <li><a href="https://metamask.io/developer/delegation-toolkit">MetaMask Delegation Toolkit</a></li>
+            <li><a href="https://eips.ethereum.org/EIPS/eip-7702">ERC-7702 — Set Code for EOAs</a></li>
+        </ul>
+
+        <div class="footer">
+            <p>Follow me on X: <a href="https://x.com/samdevrel">@samdevrel</a></p>
+            <p><a href="../index.html">← Back to Portfolio</a></p>
+        </div>
+    </div>
+</body>
+</html>
