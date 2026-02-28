@@ -1,110 +1,138 @@
 # GitHub Contribution Opportunities for Sam
-**Generated:** February 19, 2026
+*Last updated: February 26, 2026*
 
-## Top Opportunities
+## Target Repositories Scanned
+- MetaMask/delegation-framework
+- ethereum/ERCs
+- scaffold-eth/scaffold-eth-2
+- openclaw/openclaw
 
-### 🔥 #1: Gas Estimation Bug in MetaMask Delegation Framework
-**Repo:** [MetaMask/delegation-framework](https://github.com/MetaMask/delegation-framework)  
-**Issue:** [#164 - Gas estimation producing 20x oversized limits (4.18% efficiency)](https://github.com/MetaMask/delegation-framework/issues/164)  
+---
+
+## Top 5 Contribution Opportunities
+
+### 1. 🔥 MetaMask/delegation-framework #164: Gas estimation producing 20x oversized limits
+**URL:** https://github.com/MetaMask/delegation-framework/issues/164  
+**Labels:** None (no 'good first issue' label, but analysis-heavy)  
 **Created:** Feb 15, 2026
 
-**Why it fits Sam's expertise:**
-- **AI Agent Impact:** Directly affects agent wallets using ERC-7702 DeleGator framework on Base
-- **Real-world data:** Issue includes analysis of actual agent wallet (`0x464fc339add314932920d3e060745bd7ea3e92ad`) showing 258 failed transactions
-- **Economics:** $71.35/month wasted per agent — highly relevant to autonomous agent economics
-- **ERC-7702 expertise:** Requires understanding of proxy implementations and gas estimation in delegated transaction contexts
-- **Measurable impact:** Clear metrics (4.18% efficiency) make success measurable
+**Why this fits Sam's expertise:**
+- **Direct EIP-7702 relevance:** Addresses gas efficiency in DeleGator framework implementations
+- **AI agent impact:** The issue reporter found this by analyzing agent wallets on Base - agents using the framework waste ~$71/month per agent due to 95.82% unused gas allocations
+- **Standards knowledge required:** Understanding EIP-7702 proxy implementations and gas estimation logic
+- **DevRel angle:** This is a real pain point for developers building AI agents with EIP-7702 - fixing it would have immediate ecosystem impact
 
-**Technical scope:** Investigate gas estimation logic in EIP-7702 proxy implementations, optimize estimation algorithms, potentially contribute test cases.
+**Contribution path:**
+1. Analyze the gas estimation logic in the DeleGator contracts
+2. Propose improved gas limit calculations (target 70-90% efficiency)
+3. Submit PR with optimized estimator + tests showing efficiency improvements
+4. Document findings as a DevRel resource for other EIP-7702 builders
 
 ---
 
-### 🌟 #2: ERC-7746 Middleware Hooks Integration
-**Repo:** [MetaMask/delegation-framework](https://github.com/MetaMask/delegation-framework)  
-**Issue:** [#32 - Use ERC-7746 for middleware hooks](https://github.com/MetaMask/delegation-framework/issues/32)  
+### 2. 🤖 scaffold-eth/scaffold-eth-2 #1236: Improve skill architecture based on SkillsBench findings
+**URL:** https://github.com/scaffold-eth/scaffold-eth-2/issues/1236  
+**Labels:** None  
+**Created:** Feb 23, 2026
+
+**Why this fits Sam's expertise:**
+- **AI agents + Ethereum intersection:** Optimizing how AI agents build Ethereum dApps using SE-2
+- **Research-backed:** Based on SkillsBench paper showing optimal skill length (150-250 lines) and composition (2-3 skills per task)
+- **ERC-8004 relevance:** Better AI agent tooling for smart contract development
+- **Documentation + templates:** Splitting large skills (`solidity-security` at 533 lines, `defi-protocol-templates` at 443 lines) into focused, composable pieces
+
+**Contribution path:**
+1. Split `solidity-security` into focused skills: reentrancy, access control, gas optimization
+2. Split `defi-protocol-templates` into: staking, AMM, governance, flash-loans
+3. Add executable templates (.sol contracts, deploy scripts) alongside SKILL.md files
+4. Add verification checklists to each skill
+
+---
+
+### 3. 🔧 openclaw/openclaw #27308: Cron isolated sessions break with sessions_spawn
+**URL:** https://github.com/openclaw/openclaw/issues/27308  
+**Labels:** bug, trusted-contributor  
+**Created:** Feb 26, 2026
+
+**Why this fits Sam's expertise:**
+- **AI agent orchestration:** Addresses how autonomous agents spawn and coordinate sub-agents
+- **Well-documented bug:** Clear root cause (premature turn completion due to "do not poll" note), repro steps, and suggested fixes
+- **Real-world use case:** Cron jobs that spawn sub-agents to search news/compile digests - common pattern for autonomous agents
+- **ERC-8004 alignment:** Autonomous agent workflow patterns
+
+**Contribution path:**
+1. Review the fix in `subagent-spawn.ts` (suppress `SUBAGENT_SPAWN_ACCEPTED_NOTE` for cron isolated sessions)
+2. Test with the provided reproduction case
+3. Submit PR with fix + test coverage
+4. Document as a DevRel case study: "Building Autonomous Agent Workflows with OpenClaw"
+
+---
+
+### 4. 📋 MetaMask/delegation-framework #32: Use ERC-7746 for middleware hooks
+**URL:** https://github.com/MetaMask/delegation-framework/issues/32  
+**Labels:** None  
 **Created:** Nov 2, 2024
 
-**Why it fits Sam's expertise:**
-- **Standards-level work:** Bridges ERC-7746 (middleware hooks) with the delegation framework
-- **Cross-ERC integration:** Combines knowledge of ERC-7710, ERC-7746, and enforcement patterns
-- **Agent security:** Middleware hooks are critical for agent wallet safety and policy enforcement
-- **Industry collaboration:** Opportunity to work with other teams implementing similar patterns (Ironblocks, etc.)
-- **Design-heavy:** Requires architectural thinking about interoperable standards
+**Why this fits Sam's expertise:**
+- **Standards integration:** Opportunity to integrate ERC-7746 (middleware hooks standard) into EIP-7702 delegation framework
+- **Cross-ERC expertise:** Requires understanding both ERC-7746 and the DeleGator enforcer architecture
+- **Industry impact:** Makes hooks interoperable across delegation, firewall, and middleware implementations
+- **DevRel storytelling:** "How to build composable security layers with ERC-7746"
 
-**Technical scope:** Design integration between ERC-7746 hooks and current enforcer architecture, contribute to both repos, potentially write implementation examples.
-
----
-
-### 🐛 #3: Solidity Version Lock Blocking Extension
-**Repo:** [MetaMask/delegation-framework](https://github.com/MetaMask/delegation-framework)  
-**Issue:** [#88 - Source files have Solidity version locked to 0.8.23, limiting extensibility](https://github.com/MetaMask/delegation-framework/issues/88)  
-**Created:** April 9, 2025
-
-**Why it fits Sam's expertise:**
-- **Developer experience:** Makes framework more accessible for builders
-- **Ecosystem enablement:** Unblocks downstream projects that want to build on the framework
-- **Low barrier, high impact:** Straightforward fix but enables broader adoption
-- **Framework expertise:** Requires understanding of Solidity best practices for extensible libraries
-
-**Technical scope:** Evaluate security tradeoffs, change pragma statements to `^0.8.23`, run full test suite, document compatibility guidelines.
+**Contribution path:**
+1. Review ERC-7746 spec and DeleGator's existing hook patterns
+2. Propose integration design (how ERC-7746 hooks replace/extend current enforcers)
+3. Implement reference integration
+4. Write integration guide for builders
 
 ---
 
-### 🤖 #4: OpenClaw Memory Search Bug (AI Agent Core)
-**Repo:** [openclaw/openclaw](https://github.com/openclaw/openclaw)  
-**Issue:** [#20727 - memory_search fails — qmd collections missing -main suffix](https://github.com/openclaw/openclaw/issues/20727)  
-**Created:** Feb 19, 2026 (today!)
+### 5. 📝 ethereum/ERCs #1529: Inconsistent formatting of notes in ERC-20 docs
+**URL:** https://github.com/ethereum/ERCs/issues/1529  
+**Labels:** None  
+**Created:** Feb 10, 2026
 
-**Why it fits Sam's expertise:**
-- **AI agent infrastructure:** OpenClaw is the platform Sam himself uses
-- **Direct impact:** Broken memory search affects all agent capabilities
-- **Well-documented:** Issue includes exact error messages, workarounds, and root cause analysis
-- **System integration:** Involves understanding indexer/search coordination across agent sessions
-- **Dogfooding opportunity:** Sam can test the fix immediately in his own workflows
+**Why this fits Sam's expertise:**
+- **Low-hanging fruit:** Simple documentation consistency fix, great first PR to ethereum/ERCs
+- **Standards documentation:** Shows attention to detail in core ERC documentation
+- **Quick win:** Can be fixed in <30 minutes, establishes contributor track record
+- **DevRel mindset:** Improving developer experience through clear, consistent docs
 
-**Technical scope:** Fix collection naming mismatch between indexer and search calls (either drop `-main` suffix in search or add it in indexer), add regression tests.
-
----
-
-### 🎥 #5: Gemini Native Multimodal Support
-**Repo:** [openclaw/openclaw](https://github.com/openclaw/openclaw)  
-**Issue:** [#20721 - models.input type union rejects "video" / "audio"](https://github.com/openclaw/openclaw/issues/20721)  
-**Created:** Feb 19, 2026 (today!)
-
-**Why it fits Sam's expertise:**
-- **Multimodal agents:** Enables richer AI agent capabilities (video/audio understanding)
-- **Well-researched:** Issue includes full codebase analysis, affected files, and suggested fix
-- **Type system work:** Requires TypeScript/Zod schema changes across multiple files
-- **Gemini integration:** Relevant to Google's multimodal AI capabilities
-- **Clear PR path:** Issue author provides specific line numbers and backward-compatible solution
-
-**Technical scope:** Widen TypeScript union types from `"text" | "image"` to include `"video" | "audio"`, update Zod schemas, adjust model catalog types, ensure backward compatibility.
+**Contribution path:**
+1. Review ERC-20 spec and standardize note formatting (use "**Note:**" consistently)
+2. Submit PR with formatting fix
+3. Propose consistent formatting guidelines for all ERCs (bonus: submit separate issue/PR for ERC-721, ERC-1155, etc.)
 
 ---
 
-## Additional Opportunities
+## Additional Opportunities Worth Monitoring
 
-### Documentation & Standards
-- **ethereum/ERCs PR #1535:** [Update ERC-7710 NatSpec](https://github.com/ethereum/ERCs/pull/1535) — Minor doc fix but shows active ERC-7710 development
-- **ERC-7710 Examples:** The ERC-7710.md spec could benefit from more implementation examples and agent use cases
+### MetaMask/delegation-framework #110: Unable to deploy HybridDeleGator manually
+- **Why:** Documentation gap for manual deployment workflows
+- **Contribution:** Write deployment guide + troubleshooting docs for dynamic linking
 
-### Other MetaMask Issues
-- **#110:** HybridDeleGator deployment issue (dynamic linking not supported)
-- **#106:** MetaMask snap installation version conflict
+### MetaMask/delegation-framework #88: Solidity version locked to 0.8.23
+- **Why:** Affects downstream extensibility (common complaint from builders)
+- **Contribution:** Propose version flexibility strategy (^0.8.23 with CI testing across versions)
 
----
-
-## Recommended Priority
-1. **#164 (Gas Estimation)** — Highest impact for agent economics
-2. **#20727 (Memory Search)** — Fix Sam's own tooling, immediate testing available
-3. **#32 (ERC-7746)** — Strategic standards work, great for visibility
-4. **#20721 (Multimodal)** — Enables future agent capabilities
-5. **#88 (Solidity Lock)** — Quick win for ecosystem enablement
+### scaffold-eth/scaffold-eth-2 #1198: Address component crashes on invalid address
+- **Why:** UX bug affecting developer experience
+- **Contribution:** Fix error handling + add user-friendly validation message
 
 ---
+
+## Scanning Methodology
+- Searched for: 'good first issue' labels (none found across all 4 repos)
+- Searched for: open issues related to ERC-7710/7702/8004/AI agents
+- Analyzed: documentation gaps, standards integration needs, AI agent tooling issues
+- Prioritized by: relevance to Sam's expertise + ecosystem impact
 
 ## Next Steps
-1. Comment on issues to signal interest and ask clarifying questions
-2. Fork repos and create draft PRs for top 2-3 issues
-3. Coordinate with maintainers on approach before investing significant time
-4. Document findings/learnings for potential blog posts or case studies
+1. Pick 1-2 issues to tackle this week (recommend #164 + #1529 for quick win + deep contribution)
+2. Comment on the issues to signal intent to work on them
+3. For #164 and #1236: request clarification/feedback before diving deep
+4. Track progress in this doc + update with PR links once submitted
+
+---
+
+*This scan was generated automatically by OpenClaw cron job: GitHub Repo Scanner*

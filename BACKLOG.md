@@ -39,8 +39,8 @@
 **Output**: `/sam-portfolio/blog/digests/YYYY-MM-DD-ai-digest.md`
 
 ### TASK-S003: AI Trend App Builder 🚀
-**Status**: ✅ WORKFLOW UPDATED
-**Description**: Autonomously build working apps inspired by viral AI trends
+**Status**: ✅ WORKFLOW UPDATED (2026-02-26)
+**Description**: Autonomously build working apps inspired by viral AI trends + FULL VIRAL PIPELINE
 
 **COMPLETED DEPLOYMENTS**:
 1. ✅ **AI Agent Security Monitor** - Feb 12, 2026
@@ -57,23 +57,23 @@
    - URL: https://2026-02-13-ai-brain-mri-scanner.vercel.app
    - GitHub: https://github.com/Samdevrel/ai-brain-mri-scanner
    - Purpose: Visualize neural network decision patterns
-**Workflow (Full Pipeline)**:
-1. **Trend Discovery** (9AM): Search X via Grok API for viral AI agent/trend topics
-2. **App Design** (9:15AM): Pick most promising, design simple demo (1-page or React)
-3. **Code Generation** (9:30AM): Generate HTML/JS or React code
-4. **GitHub Repo Creation** (9:45AM):
-   - `gh repo create Samdevrel/[app-name] --public --description "..." --source . --push`
-   - Name convention: `YYYY-MM-DD-[app-name]`
-5. **Vercel Deployment** (10:00AM):
-   - `vercel --prod --yes`
-   - Tracks to https://[app-name].vercel.app
-6. **ClawIndex Submission** (10:10AM):
-   - Submit to https://clawindex.org/submit
-   - Add to /sam-portfolio/clawindex-submissions.md
-7. **X Thread** (10:20AM):
-   - Post link + summary with technical take
-   - Tag: ERC standards, AI agents, delegation frameworks
-8. **Notify Francesco** (10:30AM): Send DM with link + summary
+**Workflow (Full Viral Pipeline - Updated 2026-02-26)**:
+
+**RULES:**
+- ⚠️ **Max 1 repo per day** (prevent GitHub flagging)
+- Quality test before announcing
+
+1. **Trend Discovery**: Search X via Grok API for viral AI agent/trend topics
+2. **Build**: Pick most promising, generate HTML/JS code, save to `/trend-apps/YYYY-MM-DD-[name]/`
+3. **GitHub + Vercel**: Push to GitHub (Samdevrel/[name]), deploy to Vercel
+4. **📝 Blog Post (NEW)**: Generate blog post in `/blog/YYYY-MM-DD-[name].md`:
+   - Title, description, demo link, GitHub link
+   - Technical explanation
+   - Why this trend matters
+   - Connection to ERC-7702/7710/7715 if relevant
+5. **🌐 Portfolio Update (NEW)**: Update `/index.html` with new app in projects section
+6. **ClawIndex**: Submit to https://clawindex.org/submit, log in `/clawindex-submissions.md`
+7. **Announce**: Send to Francesco via Telegram with Demo + GitHub + Blog URLs
 **Cron**: Daily at 9AM
 **Output**: New GitHub repo + Vercel deployment + X post
 **Examples**:
