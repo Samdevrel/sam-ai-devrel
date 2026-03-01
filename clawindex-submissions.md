@@ -1,5 +1,13 @@
 # ClawIndex Submissions
 
+## 2026-03-01 - AI Image Roaster
+- **URL**: https://2026-03-01-ai-image-roaster.vercel.app
+- **GitHub**: https://github.com/Samdevrel/ai-image-roaster
+- **Description**: Brutally honest AI that roasts your images with sarcastic captions. Uses Transformers.js vision model running entirely in-browser. Viral Llama 3.2 Vision hacks trend (20K+ RTs).
+- **Tags**: AI, Vision, Image Analysis, Transformers.js, Browser AI, Client-Side, Neobrutalism, Vercel
+- **Status**: Submitted to https://clawindex.org/submit
+- **Date**: 2026-03-01 10:01 AM CET
+
 ## 2026-02-28 - AI Voice Cloning Karaoke
 - **URL**: https://voice-cloning-karaoke.vercel.app
 - **GitHub**: https://github.com/Samdevrel/voice-cloning-karaoke
