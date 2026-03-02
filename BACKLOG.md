@@ -7,10 +7,15 @@
 ## 🔴 HIGH PRIORITY
 
 ### TASK-S001: Daily X Engagement (Grok API)
-**Status**: ✅ DONE
+**Status**: ⚠️ NEEDS FIX - Grok API doesn't have X search access
 **Description**: Search X for ERC-7702/7710/AA tweets, engage with VALUE
 **Cron**: Every 4 hours - "Sam X Engagement (Grok API)"
 **Cost**: ~$10-20/month
+**Issue**: Grok API chat completions don't have Twitter search functionality - it's just a language model API
+**Solution options**:
+1. Use X API directly (needs Twitter API credentials)
+2. Use web_search tool to find content, then draft replies
+3. Stop using Grok for X search, use other method
 
 ### TASK-S001b: Cross-Platform Content Sharing 🔄
 **Status**: ⏳ TODO
