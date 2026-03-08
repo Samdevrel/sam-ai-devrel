@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seedance Prompt Generator - AI Video Trends</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 25%, #0f2027 50%, #203a43 75%, #0a0a0a 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 20s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textGradient 4s ease infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes textGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4); }
+            50% { box-shadow: 0 0 0 15px rgba(255, 107, 107, 0); }
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
+                        0 0 40px rgba(84, 160, 255, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 44px;
+        }
+
+        select:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #54a0ff;
+            box-shadow: 0 0 0 4px rgba(84, 160, 255, 0.1);
+        }
+
+        select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 18px 30px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .prompt-output {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .prompt-output.visible {
+            display: block;
+        }
+
+        .prompt-output h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #48dbfb;
+            font-size: 1.2rem;
+        }
+
+        .prompt-text {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .prompt-text::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .prompt-text::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .prompt-text::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .copy-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #00d2d3 0%, #54a0ff 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(84, 160, 255, 0.3);
+        }
+
+        .trend-info {
+            background: rgba(255, 107, 107, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 107, 107, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            animation: fadeIn 0.6s ease-out 0.5s both;
+        }
+
+        .trend-info h3 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ff6b6b;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .trend-info p {
+            line-height: 1.7;
+            color: #b0b0b0;
+            margin-bottom: 15px;
+        }
+
+        .trend-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .trend-tag {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #606060;
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: #54a0ff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #48dbfb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #54a0ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: #a0a0a0;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <header>
+            <h1>🎬 Seedance Prompt Generator</h1>
+            <p class="subtitle">Create cinematic AI video prompts inspired by the viral Seedance 2.0 trend</p>
+            <div class="badge">
+                <span>🔥</span> TRENDING NOW
+            </div>
+        </header>
+
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🎭</div>
+                    <h3>Genre</h3>
+                </div>
+                <select id="genre">
+                    <option value="">Select Genre</option>
+                    <option value="Sci-Fi">🚀 Sci-Fi</option>
+                    <option value="Fantasy">🏰 Fantasy</option>
+                    <option value="Drama">🎭 Drama</option>
+                    <option value="Comedy">😂 Comedy</option>
+                    <option value="Horror">👻 Horror</option>
+                    <option value="Action">💥 Action</option>
+                    <option value="Romance">💕 Romance</option>
+                    <option value="Thriller">😱 Thriller</option>
+                    <option value="Musical">🎵 Musical</option>
+                </select>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🌍</div>
+                    <h3>Setting</h3>
+                </div>
+                <select id="setting">
+                    <option value="">Select Setting</option>
+                    <option value="Cyberpunk City">🌃 Cyberpunk City</option>
+                    <option value="Ancient Palace">🏯 Ancient Palace</option>
+                    <option value="Space Station">🛸 Space Station</option>
+                    <option value="Enchanted Forest">🌲 Enchanted Forest</option>
+                    <option value="Underwater World">🌊 Underwater World</option>
+                    <option value="Desert Oasis">🏜️ Desert Oasis</option>
+                    <option value="Futuristic Lab">🔬 Futuristic Lab</option>
+                    <option value="Medieval Castle">🏰 Medieval Castle</option>
+                </select>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">⭐</div>
+                    <h3>Character</h3>
+                </div>
+                <select id="character">
+                    <option value="">Select Character</option>
+                    <option value="Celebrity">🌟 Celebrity</option>
+                    <option value="Historical Figure">📜 Historical Figure</option>
+                    <option value="Anime Hero">🦸 Anime Hero</option>
+                    <option value="Advanced Robot">🤖 Advanced Robot</option>
+                    <option value="Mythical Creature">🐉 Mythical Creature</option>
+                    <option value="Everyday Person">👤 Everyday Person</option>
+                    <option value="Music Icon">🎤 Music Icon</option>
+                    <option value="Sports Legend">🏆 Sports Legend</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" id="generateBtn">
+                <span>✨</span> Generate Prompt
+            </button>
+            <button class="btn btn-secondary" id="randomBtn">
+                <span>🎲</span> Random Inspiration
+            </button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Crafting your cinematic prompt...</p>
+        </div>
+
+        <div class="prompt-output" id="promptOutput">
+            <h3><span>🎬</span> Your AI Video Prompt</h3>
+            <div class="prompt-text" id="promptText"></div>
+            <button class="copy-btn" id="copyBtn">
+                <span>📋</span> Copy to Clipboard
+            </button>
+        </div>
+
+        <div class="trend-info">
+            <h3><span>🌟</span> What is Seedance 2.0?</h3>
+            <p><strong>Seedance 2.0</strong> is ByteDance's revolutionary AI video generation model that has gone viral across social media. This powerful tool can process text, images, audio, and video simultaneously to create cinematic, professional-quality videos with just simple text prompts.</p>
+            <p>The trend exploded on Chinese social media, with users creating mind-bending videos featuring unlikely characters (like Kanye West and Kim Kardashian) starring in elaborate palace dramas speaking Mandarin. Elon Musk even commented "It's happening fast" on the breakthrough model.</p>
+            <p>This prompt generator helps you craft detailed, creative prompts inspired by the Seedance 2.0 trend—perfect for exploring the future of AI video creation!</p>
+            <div class="trend-tags">
+                <span class="trend-tag">#Seedance</span>
+                <span class="trend-tag">#AIVideo</span>
+                <span class="trend-tag">#ByteDance</span>
+                <span class="trend-tag">#Viral</span>
+                <span class="trend-tag">#Cinematic</span>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with ❤️ by <a href="https://x.com/samdevrel" target="_blank">@samdevrel</a></p>
+            <p style="margin-top: 10px; opacity: 0.6;">Demo app exploring viral AI trends</p>
+        </footer>
+    </div>
+
+    <script>
+        // Create floating particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Data
+        const genreDescriptions = {
+            'Sci-Fi': 'A futuristic odyssey through space and time, with advanced technology and alien encounters',
+            'Fantasy': 'A magical realm with wizards, dragons, and legendary quests beyond imagination',
+            'Drama': 'An emotionally charged narrative exploring human relationships and life\'s profound moments',
+            'Comedy': 'A lighthearted adventure filled with hilarious situations and witty dialogue',
+            'Horror': 'A spine-chilling tale of suspense and terror that will keep viewers on edge',
+            'Action': 'High-octane sequences with intense fights, chases, and epic confrontations',
+            'Romance': 'A heartwarming love story with tender moments and emotional depth',
+            'Thriller': 'A gripping narrative with unexpected twists and mounting tension',
+            'Musical': 'A spectacular song-and-dance experience with catchy tunes and vibrant choreography'
+        };
+
+        const settingDetails = {
+            'Cyberpunk City': 'neon-lit streets with holographic advertisements, flying vehicles, and towering skyscrapers',
+            'Ancient Palace': 'grand halls adorned with golden tapestries, intricate carvings, and imperial splendor',
+            'Space Station': 'zero-gravity modules orbiting a distant planet with cosmic vistas through panoramic windows',
+            'Enchanted Forest': 'ancient trees with bioluminescent plants, mystical creatures, and hidden groves',
+            'Underwater World': 'vibrant coral reefs, schools of colorful fish, and mysterious underwater caverns',
+            'Desert Oasis': 'endless sand dunes under a blazing sun, with palm-fringed oases and starlit nights',
+            'Futuristic Lab': 'sleek laboratories with holographic displays, advanced AI interfaces, and cutting-edge equipment',
+            'Medieval Castle': 'stone fortresses with drawbridges, grand halls, and ancient battlegrounds'
+        };
+
+        const characterTemplates = {
+            'Celebrity': 'a charismatic Hollywood A-lister commanding the screen with star power',
+            'Historical Figure': 'an iconic historical figure brought to life with authenticity and gravitas',
+            'Anime Hero': 'a bold anime protagonist with dynamic poses and signature moves',
+            'Advanced Robot': 'a sleek AI-powered android with glowing circuits and advanced capabilities',
+            'Mythical Creature': 'a legendary being from ancient mythology with awe-inspiring presence',
+            'Everyday Person': 'a relatable character whose ordinary life becomes extraordinary',
+            'Music Icon': 'a legendary music artist with electrifying stage presence and style',
+            'Sports Legend': 'a celebrated athlete known for their incredible achievements and charisma'
+        };
+
+        const cameraStyles = [
+            'Cinematic tracking shots with smooth dolly movements',
+            'Dramatic low-angle shots emphasizing power and scale',
+            'Intimate close-ups capturing subtle emotions',
+            'Sweeping aerial shots revealing epic landscapes',
+            'Dynamic handheld camera for energy and realism',
+            'Slow-motion sequences for dramatic emphasis',
+            'Seamless transitions between scenes'
+        ];
+
+        const visualEffects = [
+            'Subtle lens flares and volumetric lighting',
+            'Rich color grading with cinematic depth',
+            'Particle effects and atmospheric haze',
+            'Dynamic shadows and realistic reflections',
+            'Depth of field focusing on key subjects',
+            'Subtle motion blur for enhanced realism'
+        ];
+
+        // DOM Elements
+        const genreSelect = document.getElementById('genre');
+        const settingSelect = document.getElementById('setting');
+        const characterSelect = document.getElementById('character');
+        const generateBtn = document.getElementById('generateBtn');
+        const randomBtn = document.getElementById('randomBtn');
+        const promptOutput = document.getElementById('promptOutput');
+        const promptText = document.getElementById('promptText');
+        const copyBtn = document.getElementById('copyBtn');
+        const loading = document.getElementById('loading');
+
+        function generatePrompt(genre, setting, character) {
+            const genreDesc = genreDescriptions[genre];
+            const settingDetail = settingDetails[setting];
+            const charTemplate = characterTemplates[character];
+            const camera = cameraStyles[Math.floor(Math.random() * cameraStyles.length)];
+            const vfx = visualEffects[Math.floor(Math.random() * visualEffects.length)];
+
+            return `Cinematic AI Video Prompt - Seedance 2.0 Style
+
+GENRE: ${genre.toUpperCase()}
+${genreDesc}.
+
+SETTING: ${setting}
+${settingDetail}.
+
+MAIN CHARACTER: ${character}
+${charTemplate}.
+
+VISUAL STYLE:
+${camera}. ${vfx}. The video should feel like a high-budget production with professional cinematography.
+
+MOOD & ATMOSPHERE:
+Immersive and engaging, with careful attention to lighting, composition, and emotional resonance. Each frame should tell a story.
+
+TECHNICAL SPECIFICATIONS:
+- 4K resolution at 60fps
+- Smooth, fluid animations
+- Seamless scene transitions
+- Professional-grade color grading
+- High-fidelity details and textures
+
+INSPIRED BY: The viral Seedance 2.0 AI video generation trend - cinematic, dynamic, and breathtakingly creative.`;
+        }
+
+        function handleGenerate() {
+            const genre = genreSelect.value;
+            const setting = settingSelect.value;
+            const character = characterSelect.value;
+
+            if (!genre || !setting || !character) {
+                alert('Please select all three options: Genre, Setting, and Character!');
+                return;
+            }
+
+            // Show loading
+            promptOutput.classList.remove('visible');
+            loading.style.display = 'block';
+
+            // Simulate generation delay
+            setTimeout(() => {
+                const prompt = generatePrompt(genre, setting, character);
+                promptText.textContent = prompt;
+                loading.style.display = 'none';
+                promptOutput.classList.add('visible');
+            }, 800);
+        }
+
+        function handleRandom() {
+            const genres = Object.keys(genreDescriptions);
+            const settings = Object.keys(settingDetails);
+            const characters = Object.keys(characterTemplates);
+
+            genreSelect.value = genres[Math.floor(Math.random() * genres.length)];
+            settingSelect.value = settings[Math.floor(Math.random() * settings.length)];
+            characterSelect.value = characters[Math.floor(Math.random() * characters.length)];
+
+            handleGenerate();
+        }
+
+        function handleCopy() {
+            navigator.clipboard.writeText(promptText.textContent).then(() => {
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<span>✅</span> Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy. Please select and copy manually.');
+            });
+        }
+
+        // Event Listeners
+        generateBtn.addEventListener('click', handleGenerate);
+        randomBtn.addEventListener('click', handleRandom);
+        copyBtn.addEventListener('click', handleCopy);
+    </script>
+</body>
+</html>

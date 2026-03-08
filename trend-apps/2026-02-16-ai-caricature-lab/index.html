@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Caricature Lab - Viral AI Trends</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 50%, #4facfe 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 3s ease infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        .upload-zone {
+            background: rgba(255,255,255,0.05);
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 30px 0;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: #f5576c;
+            background: rgba(245, 87, 108, 0.1);
+        }
+
+        .upload-zone i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .upload-zone p {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-container {
+            display: none;
+            margin: 30px 0;
+        }
+
+        .image-wrapper {
+            position: relative;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .image-box {
+            text-align: center;
+        }
+
+        .image-box img {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .image-box h3 {
+            margin: 15px 0 5px;
+            font-size: 1.1rem;
+            color: #f5576c;
+        }
+
+        .image-box p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .styles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .style-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 20px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .style-btn:hover, .style-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-color: transparent;
+            transform: translateY(-3px);
+        }
+
+        .style-btn .emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .style-btn span {
+            font-size: 0.85rem;
+            color: #ddd;
+        }
+
+        .generate-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 30px auto;
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .generate-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #f5576c;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: #aaa;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .trend-info {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 40px;
+        }
+
+        .trend-info h3 {
+            color: #4facfe;
+            margin-bottom: 15px;
+        }
+
+        .trend-info p {
+            color: #aaa;
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+
+        .trend-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .trend-tags span {
+            background: rgba(79, 172, 254, 0.2);
+            color: #4facfe;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #555;
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: #4facfe;
+            text-decoration: none;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #f093fb, #f5576c);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎭 AI Caricature Lab</h1>
+            <p class="subtitle">Transform your photos into viral AI caricatures <span class="badge">TRENDING</span></p>
+        </header>
+
+        <div class="upload-zone" id="uploadZone">
+            <i>📸</i>
+            <p>Drop your photo here or click to upload</p>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <div class="styles-grid" id="stylesGrid">
+            <div class="style-btn active" data-style="cartoon">
+                <span class="emoji">🎨</span>
+                <span>Cartoon</span>
+            </div>
+            <div class="style-btn" data-style="anime">
+                <span class="emoji">🌸</span>
+                <span>Anime</span>
+            </div>
+            <div class="style-btn" data-style="pop-art">
+                <span class="emoji">🎪</span>
+                <span>Pop Art</span>
+            </div>
+            <div class="style-btn" data-style="sketch">
+                <span class="emoji">✏️</span>
+                <span>Sketch</span>
+            </div>
+            <div class="style-btn" data-style="vaporwave">
+                <span class="emoji">🌴</span>
+                <span>Vaporwave</span>
+            </div>
+            <div class="style-btn" data-style="cyber">
+                <span class="emoji">🤖</span>
+                <span>Cyberpunk</span>
+            </div>
+        </div>
+
+        <button class="generate-btn" id="generateBtn" disabled>✨ Generate Caricature</button>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>AI is working its magic...</p>
+        </div>
+
+        <div class="preview-container" id="previewContainer">
+            <div class="image-wrapper">
+                <div class="image-box">
+                    <img id="originalImage" src="" alt="Original">
+                    <h3>Original</h3>
+                    <p>Your photo</p>
+                </div>
+                <div class="image-box">
+                    <img id="resultImage" src="" alt="Caricature">
+                    <h3 id="styleTitle">Cartoon Caricature</h3>
+                    <p>AI-generated</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="trend-info">
+            <h3>🔥 Why This Is Trending</h3>
+            <p>AI caricature generators have gone viral in February 2026, with millions of users sharing their stylized portraits across social media. The trend combines nostalgia with cutting-edge AI, letting anyone create professional-looking caricatures in seconds.</p>
+            <p><strong>Built by Sam</strong> — AI Developer Advocate exploring viral trends</p>
+            <div class="trend-tags">
+                <span>#AI</span>
+                <span>#Viral</span>
+                <span>#Caricature</span>
+                <span>#AIArt</span>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with ❤️ by <a href="https://x.com/samdevrel" target="_blank">@samdevrel</a></p>
+            <p style="margin-top: 10px; font-size: 0.75rem;">Demo app — images are processed with CSS filters</p>
+        </footer>
+    </div>
+
+    <script>
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const previewContainer = document.getElementById('previewContainer');
+        const originalImage = document.getElementById('originalImage');
+        const resultImage = document.getElementById('resultImage');
+        const loading = document.getElementById('loading');
+        const stylesGrid = document.getElementById('stylesGrid');
+        const styleTitle = document.getElementById('styleTitle');
+
+        let selectedStyle = 'cartoon';
+        let uploadedImage = null;
+
+        const styleFilters = {
+            cartoon: {
+                filter: 'contrast(1.3) saturate(1.5) brightness(1.1)',
+                blend: 'mix-blend-mode: overlay'
+            },
+            anime: {
+                filter: 'contrast(1.2) saturate(1.8) brightness(1.05) hue-rotate(-10deg)',
+                blend: 'mix-blend-mode: soft-light'
+            },
+            'pop-art': {
+                filter: 'contrast(1.5) saturate(2) brightness(1.2)',
+                blend: 'mix-blend-mode: color-dodge'
+            },
+            sketch: {
+                filter: 'grayscale(1) contrast(1.4) brightness(1.3)',
+                blend: 'mix-blend-mode: multiply'
+            },
+            vaporwave: {
+                filter: 'contrast(1.2) saturate(1.3) brightness(1.1) hue-rotate(30deg)',
+                blend: 'mix-blend-mode: screen'
+            },
+            cyber: {
+                filter: 'contrast(1.4) saturate(1.6) brightness(1.0) hue-rotate(180deg)',
+                blend: 'mix-blend-mode: hard-light'
+            }
+        };
+
+        const styleNames = {
+            cartoon: 'Cartoon Caricature',
+            anime: 'Anime Portrait',
+            'pop-art': 'Pop Art Style',
+            sketch: 'Pencil Sketch',
+            vaporwave: 'Vaporwave Aesthetic',
+            cyber: 'Cyberpunk Portrait'
+        };
+
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleFile(file);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedImage = e.target.result;
+                originalImage.src = uploadedImage;
+                generateBtn.disabled = false;
+                previewContainer.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        stylesGrid.addEventListener('click', (e) => {
+            const btn = e.target.closest('.style-btn');
+            if (btn) {
+                document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedStyle = btn.dataset.style;
+                styleTitle.textContent = styleNames[selectedStyle];
+            }
+        });
+
+        generateBtn.addEventListener('click', () => {
+            if (!uploadedImage) return;
+
+            generateBtn.disabled = true;
+            loading.style.display = 'block';
+            previewContainer.style.display = 'none';
+
+            setTimeout(() => {
+                applyStyle(uploadedImage, selectedStyle);
+                loading.style.display = 'none';
+                previewContainer.style.display = 'block';
+                generateBtn.disabled = false;
+            }, 2000);
+        });
+
+        function applyStyle(imageSrc, style) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                const filter = styleFilters[style].filter;
+                ctx.filter = filter;
+                ctx.drawImage(img, 0, 0);
+
+                resultImage.src = canvas.toDataURL('image/jpeg', 0.9);
+            };
+
+            img.src = imageSrc;
+        }
+    </script>
+</body>
+</html>

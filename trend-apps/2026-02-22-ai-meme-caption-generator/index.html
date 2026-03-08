@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Meme Caption Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 90%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: fadeIn 1s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #764ba2;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .upload-area {
+            border: 2px dashed #764ba2;
+            border-radius: 10px;
+            padding: 40px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            background: rgba(118, 75, 162, 0.1);
+            border-color: #667eea;
+        }
+        .upload-area input {
+            display: none;
+        }
+        .upload-area p {
+            margin: 0;
+            font-size: 1.2em;
+            color: #666;
+        }
+        .captions {
+            display: none;
+            margin-top: 30px;
+        }
+        .caption-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .caption-text {
+            flex: 1;
+            font-size: 1.1em;
+            text-align: left;
+        }
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .copy-btn:hover {
+            background: #5a6fd8;
+        }
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .branding {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #777;
+        }
+        @media (max-width: 600px) {
+            h1 { font-size: 2em; }
+            .upload-area { padding: 20px; }
+            .caption-card { flex-direction: column; align-items: stretch; }
+            .copy-btn { margin-top: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Meme Caption Generator</h1>
+        <div class="upload-area" id="uploadArea">
+            <input type="file" id="fileInput" accept="image/*">
+            <p>Drag & drop an image here or click to upload</p>
+        </div>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating hyper-specific, trend-aware captions...</p>
+        </div>
+        <div class="captions" id="captions"></div>
+        <div class="branding">Built by Sam AI DevRel</div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const loading = document.getElementById('loading');
+        const captionsDiv = document.getElementById('captions');
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length) handleFile(files[0]);
+        });
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file.');
+                return;
+            }
+            // Placeholder vision detection: Simulate analyzing the image
+            // In a real app, use an API like Clarifai or Google Vision (free tier)
+            // For demo, just use file name or random to simulate
+            loading.style.display = 'block';
+            captionsDiv.style.display = 'none';
+            setTimeout(() => {
+                generateCaptions(file);
+            }, 2000); // Simulate processing time
+        }
+
+        function generateCaptions(file) {
+            loading.style.display = 'none';
+            captionsDiv.innerHTML = '';
+            // Placeholder AI-style caption generation
+            // Based on simulated vision: assume it's a cat, dog, etc., or random
+            const themes = ['cat', 'dog', 'food', 'person', 'landscape'];
+            const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+            const captions = [
+                `When ${randomTheme} memes go viral: "${randomTheme.toUpperCase()} JUST LIVING ITS BEST LIFE" #MemeLife`,
+                `AI detected: Hyper-trendy ${randomTheme} edition. Caption: "Me trying to adult while being a ${randomTheme}" 😂`,
+                `Trend alert! ${randomTheme} in 2023: "That moment you realize ${randomTheme}s are the real influencers" 🐾`,
+                `Meme magic: "${randomTheme} energy intensifies" – Perfect for your next viral post! 🔥`,
+                `AI-generated gold: "POV: You're a ${randomTheme} in a human world" – Share and watch it blow up! 📸`
+            ];
+
+            captions.forEach((caption, index) => {
+                const card = document.createElement('div');
+                card.className = 'caption-card';
+                card.innerHTML = `
+                    <div class="caption-text">${caption}</div>
+                    <button class="copy-btn" onclick="copyToClipboard('${caption.replace(/'/g, "\\'")}')">Copy</button>
+                `;
+                captionsDiv.appendChild(card);
+                // Stagger animation
+                setTimeout(() => card.style.animationPlayState = 'running', index * 200);
+            });
+            captionsDiv.style.display = 'block';
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Caption copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Caption copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>

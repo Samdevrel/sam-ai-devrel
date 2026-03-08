@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "2026-02-15-ai-retro-gamer",
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    }
+  ]
+}

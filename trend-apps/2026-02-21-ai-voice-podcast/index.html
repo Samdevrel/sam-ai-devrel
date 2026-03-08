@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Podcast Generator - Clone Celebrity Voices</title>
+    <meta name="description" content="Generate AI-powered podcasts with celebrity voice styles. Turn your script into audio with Morgan Freeman, David Attenborough, and more!">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        textarea:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        select {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        select option {
+            background: #764ba2;
+            color: #fff;
+        }
+        select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .stop-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .examples {
+            margin-bottom: 30px;
+        }
+        .examples h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        .example-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .example-btn {
+            padding: 12px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        .example-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .share {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .share h2 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .share-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .twitter { background: #1da1f2; }
+        .facebook { background: #1877f2; }
+        .linkedin { background: #0077b5; }
+        .share-btn:hover {
+            transform: scale(1.05);
+        }
+        .status {
+            text-align: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            opacity: 0.7;
+            font-size: 0.85rem;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .container {
+                padding: 20px;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            .example-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ AI Voice Podcast</h1>
+        <p class="subtitle">Generate podcasts with celebrity voice styles</p>
+        
+        <div class="examples">
+            <h2>✨ Try These Examples</h2>
+            <div class="example-list">
+                <button class="example-btn" data-script="Welcome to the podcast. Today, we're diving deep into the mysteries of the universe. From black holes to distant galaxies, join us on this cosmic journey that will expand your mind and challenge everything you thought you knew about reality." data-voice="0">
+                    🌌 Cosmic Mysteries<br><small>(Morgan Freeman)</small>
+                </button>
+                <button class="example-btn" data-script="As I stand here in the heart of the Amazon rainforest, I witness the incredible diversity of life. Every creature, from the smallest insect to the mightiest jaguar, plays a vital role in this delicate ecosystem. Nature is truly magnificent." data-voice="1">
+                    🌿 Amazon Wonders<br><small>(David Attenborough)</small>
+                </button>
+                <button class="example-btn" data-script="In this episode, we explore the power of positive thinking. I'm sharing stories of triumph and resilience that will inspire you to live your best life. You have the power to change your story, starting right now." data-voice="2">
+                    ✨ Positive Thinking<br><small>(Oprah Style)</small>
+                </button>
+                <button class="example-btn" data-script="What's up everyone! We're talking about the future of AI, consciousness, and what it means for humanity. This is wild, man. The implications are absolutely crazy. Buckle up because we're going deep!" data-voice="3">
+                    🤖 AI & Consciousness<br><small>(Joe Rogan)</small>
+                </button>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>📝 Your Podcast Script</label>
+            <textarea id="script" placeholder="Paste or type your podcast script here..."></textarea>
+        </div>
+
+        <div class="input-group">
+            <label>🎭 Voice Style</label>
+            <select id="voice">
+                <option value="deep">Morgan Freeman (Deep & Wise)</option>
+                <option value="nature">David Attenborough (Nature Doc)</option>
+                <option value="inspiring">Oprah Winfrey (Inspiring)</option>
+                <option value="casual">Joe Rogan (Conversational)</option>
+            </select>
+        </div>
+
+        <div class="controls">
+            <button id="generate">🎬 Generate Podcast</button>
+            <button id="stop" class="stop-btn" style="display: none;">⏹️ Stop</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating your AI voice podcast...</p>
+        </div>
+
+        <div class="status" id="status" style="display: none;"></div>
+
+        <div class="share">
+            <h2>🚀 Share This Tool</h2>
+            <div class="share-buttons">
+                <a href="https://twitter.com/intent/tweet?text=Check%20out%20this%20AI%20Voice%20Podcast%20Generator!%20Turn%20any%20script%20into%20audio%20with%20celebrity%20voice%20styles%20🎙️&url=" class="share-btn twitter" target="_blank">Share on X</a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=" class="share-btn facebook" target="_blank">Share on Facebook</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            Built with Web Speech API | Works best in Chrome
+        </div>
+    </div>
+
+    <script>
+        const scriptTextarea = document.getElementById('script');
+        const voiceSelect = document.getElementById('voice');
+        const generateBtn = document.getElementById('generate');
+        const stopBtn = document.getElementById('stop');
+        const loadingDiv = document.getElementById('loading');
+        const statusDiv = document.getElementById('status');
+        const exampleBtns = document.querySelectorAll('.example-btn');
+
+        let currentUtterance = null;
+        let voices = [];
+
+        // Load available voices
+        function loadVoices() {
+            voices = speechSynthesis.getVoices();
+            console.log('Available voices:', voices.length);
+        }
+
+        // Load voices on page load and when they change
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+        loadVoices();
+
+        // Voice configurations
+        const voiceConfigs = {
+            deep: { rate: 0.85, pitch: 0.7, preferredVoice: 'alex' },
+            nature: { rate: 0.9, pitch: 0.9, preferredVoice: 'daniel' },
+            inspiring: { rate: 0.95, pitch: 1.1, preferredVoice: 'samantha' },
+            casual: { rate: 1.1, pitch: 1.0, preferredVoice: 'tom' }
+        };
+
+        // Example buttons
+        exampleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                scriptTextarea.value = btn.dataset.script;
+                if (btn.dataset.voice) {
+                    const voiceTypes = ['deep', 'nature', 'inspiring', 'casual'];
+                    voiceSelect.value = voiceTypes[parseInt(btn.dataset.voice)];
+                }
+                // Auto-scroll to script
+                scriptTextarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        });
+
+        // Generate podcast
+        generateBtn.addEventListener('click', () => {
+            const text = scriptTextarea.value.trim();
+            if (!text) {
+                showStatus('⚠️ Please enter a script first!', 3000);
+                return;
+            }
+
+            // Stop any ongoing speech
+            speechSynthesis.cancel();
+
+            const selectedVoiceType = voiceSelect.value;
+            const config = voiceConfigs[selectedVoiceType];
+
+            // Create utterance
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            
+            // Try to find a suitable voice
+            let selectedVoice = voices.find(v => v.name.toLowerCase().includes(config.preferredVoice));
+            if (!selectedVoice) {
+                // Fallback to first English voice
+                selectedVoice = voices.find(v => v.lang.startsWith('en'));
+            }
+            if (selectedVoice) {
+                currentUtterance.voice = selectedVoice;
+            }
+
+            currentUtterance.rate = config.rate;
+            currentUtterance.pitch = config.pitch;
+            currentUtterance.volume = 1.0;
+
+            // Event handlers
+            currentUtterance.onstart = () => {
+                loadingDiv.style.display = 'none';
+                generateBtn.style.display = 'none';
+                stopBtn.style.display = 'block';
+                showStatus('🎙️ Playing podcast...');
+            };
+
+            currentUtterance.onend = () => {
+                generateBtn.style.display = 'block';
+                stopBtn.style.display = 'none';
+                showStatus('✅ Podcast completed!', 3000);
+            };
+
+            currentUtterance.onerror = (event) => {
+                generateBtn.style.display = 'block';
+                stopBtn.style.display = 'none';
+                showStatus('❌ Error: ' + event.error, 5000);
+            };
+
+            // Show loading
+            loadingDiv.style.display = 'block';
+            statusDiv.style.display = 'none';
+
+            // Simulate AI processing delay
+            setTimeout(() => {
+                speechSynthesis.speak(currentUtterance);
+            }, 1500);
+        });
+
+        // Stop button
+        stopBtn.addEventListener('click', () => {
+            speechSynthesis.cancel();
+            generateBtn.style.display = 'block';
+            stopBtn.style.display = 'none';
+            loadingDiv.style.display = 'none';
+            showStatus('⏹️ Stopped', 2000);
+        });
+
+        function showStatus(message, hideAfter = 0) {
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+            if (hideAfter > 0) {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, hideAfter);
+            }
+        }
+
+        // Update share links with actual URL when deployed
+        window.addEventListener('load', () => {
+            const currentUrl = encodeURIComponent(window.location.href);
+            document.querySelectorAll('.share-btn').forEach(btn => {
+                if (btn.classList.contains('twitter')) {
+                    btn.href = btn.href + currentUrl;
+                } else {
+                    btn.href = btn.href + currentUrl;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

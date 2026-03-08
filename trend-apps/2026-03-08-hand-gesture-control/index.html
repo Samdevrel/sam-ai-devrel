@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Hand Gesture Control</title>
+    <style>
+        body {
+            background: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            background: yellow;
+            color: black;
+            padding: 10px;
+            box-shadow: 5px 5px 0px magenta;
+            margin-bottom: 20px;
+        }
+        .main {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .webcam-section {
+            position: relative;
+            flex: 1;
+        }
+        #video {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border: 5px solid cyan;
+            box-shadow: 5px 5px 0px cyan;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .gesture {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 2em;
+            color: cyan;
+            background: black;
+            padding: 5px;
+            box-shadow: 3px 3px 0px yellow;
+        }
+        .info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .instructions, .log {
+            background: black;
+            border: 5px solid magenta;
+            box-shadow: 5px 5px 0px magenta;
+            padding: 10px;
+        }
+        .instructions ul, .log ul {
+            list-style: none;
+            padding: 0;
+        }
+        .instructions li, .log li {
+            margin: 5px 0;
+        }
+        .demo {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #demo-canvas {
+            border: 5px solid yellow;
+            box-shadow: 5px 5px 0px yellow;
+            background: black;
+        }
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background: cyan;
+            color: black;
+            box-shadow: 5px 5px 0px magenta;
+        }
+        @media (max-width: 768px) {
+            .main {
+                flex-direction: column;
+            }
+            .info {
+                flex-direction: row;
+                gap: 10px;
+            }
+            .instructions, .log {
+                flex: 1;
+            }
+            #demo-canvas {
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Hand Gesture Control</h1>
+        <div class="main">
+            <div class="webcam-section">
+                <video id="video" autoplay muted></video>
+                <canvas id="overlay" class="overlay"></canvas>
+                <div id="gesture" class="gesture">No gesture</div>
+            </div>
+            <div class="info">
+                <div class="instructions">
+                    <h3>Instructions</h3>
+                    <ul>
+                        <li>✋ Open Palm: Stop</li>
+                        <li>✊ Fist: Select / Draw</li>
+                        <li>👆 Point Up: Scroll Up</li>
+                        <li>👇 Point Down: Scroll Down</li>
+                        <li>✌️ Peace Sign: Toggle Mode</li>
+                    </ul>
+                </div>
+                <div class="log">
+                    <h3>Gesture Log</h3>
+                    <ul id="gesture-log"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="demo">
+            <h3>Demo Canvas</h3>
+            <canvas id="demo-canvas"></canvas>
+        </div>
+        <footer>Built by Sam (@samdevrel) | Powered by MediaPipe</footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script>
+        const videoElement = document.getElementById('video');
+        const canvasElement = document.getElementById('overlay');
+        const canvasCtx = canvasElement.getContext('2d');
+        const gestureEl = document.getElementById('gesture');
+        const logEl = document.getElementById('gesture-log');
+        const demoCanvas = document.getElementById('demo-canvas');
+        const demoCtx = demoCanvas.getContext('2d');
+        let log = [];
+        let drawing = false;
+        let lastX, lastY;
+        let strokeColor = 'yellow';
+
+        function onResults(results) {
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                const landmarks = results.multiHandLandmarks[0];
+                drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#00FFFF', lineWidth: 5});
+                drawLandmarks(canvasCtx, landmarks, {color: '#FF00FF', lineWidth: 2});
+                const gesture = classifyGesture(landmarks);
+                gestureEl.textContent = gesture;
+                addToLog(gesture);
+                handleDemo(gesture, landmarks);
+            } else {
+                gestureEl.textContent = 'No gesture';
+            }
+            canvasCtx.restore();
+        }
+
+        function classifyGesture(landmarks) {
+            const indexTip = landmarks[8];
+            const middleTip = landmarks[12];
+            const ringTip = landmarks[16];
+            const pinkyTip = landmarks[20];
+            const indexMCP = landmarks[5];
+            const middleMCP = landmarks[9];
+            const ringMCP = landmarks[13];
+            const pinkyMCP = landmarks[17];
+            const thumbTip = landmarks[4];
+            const thumbMCP = landmarks[2];
+
+            // Open Palm: fingers extended
+            if (indexTip.y < indexMCP.y && middleTip.y < middleMCP.y && ringTip.y < ringMCP.y && pinkyTip.y < pinkyMCP.y) {
+                return '✋ Open Palm';
+            }
+            // Fist: fingers curled
+            if (indexTip.y > indexMCP.y && middleTip.y > middleMCP.y && ringTip.y > ringMCP.y && pinkyTip.y > pinkyMCP.y) {
+                return '✊ Fist';
+            }
+            // Point Up: index up, others down
+            if (indexTip.y < indexMCP.y && middleTip.y > middleMCP.y && ringTip.y > ringMCP.y && pinkyTip.y > pinkyMCP.y) {
+                return '👆 Point Up';
+            }
+            // Point Down: index down, others curled (simplified)
+            if (indexTip.y > indexMCP.y && middleTip.y > middleMCP.y && ringTip.y > ringMCP.y && pinkyTip.y > pinkyMCP.y && thumbTip.x > thumbMCP.x) {
+                return '👇 Point Down';
+            }
+            // Peace Sign: index and middle up, others down
+            if (indexTip.y < indexMCP.y && middleTip.y < middleMCP.y && ringTip.y > ringMCP.y && pinkyTip.y > pinkyMCP.y) {
+                return '✌️ Peace Sign';
+            }
+            return 'Unknown';
+        }
+
+        function handleDemo(gesture, landmarks) {
+            const handX = landmarks[9].x * demoCanvas.width; // palm center
+            const handY = landmarks[9].y * demoCanvas.height;
+            if (gesture === '✊ Fist') {
+                if (!drawing) {
+                    drawing = true;
+                    lastX = handX;
+                    lastY = handY;
+                } else {
+                    demoCtx.beginPath();
+                    demoCtx.moveTo(lastX, lastY);
+                    demoCtx.lineTo(handX, handY);
+                    demoCtx.strokeStyle = strokeColor;
+                    demoCtx.lineWidth = 5;
+                    demoCtx.stroke();
+                    lastX = handX;
+                    lastY = handY;
+                }
+            } else {
+                drawing = false;
+            }
+            if (gesture === '✋ Open Palm') {
+                demoCtx.clearRect(0, 0, demoCanvas.width, demoCanvas.height);
+            }
+            if (gesture === '👆 Point Up') {
+                window.scrollBy(0, -50);
+            }
+            if (gesture === '👇 Point Down') {
+                window.scrollBy(0, 50);
+            }
+            if (gesture === '✌️ Peace Sign') {
+                strokeColor = strokeColor === 'yellow' ? 'magenta' : 'yellow';
+            }
+        }
+
+        function addToLog(gesture) {
+            if (log[0] !== gesture) {
+                log.unshift(gesture);
+                if (log.length > 5) log.pop();
+                logEl.innerHTML = log.map(g => `<li>${g}</li>`).join('');
+            }
+        }
+
+        const hands = new Hands({locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        }});
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+        hands.onResults(onResults);
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {
+                await hands.send({image: videoElement});
+            },
+            width: 640,
+            height: 480
+        });
+        camera.start();
+
+        // Set canvas sizes
+        canvasElement.width = 640;
+        canvasElement.height = 480;
+        demoCanvas.width = 400;
+        demoCanvas.height = 300;
+    </script>
+</body>
+</html>

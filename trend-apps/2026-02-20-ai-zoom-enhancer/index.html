@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Zoom Enhancer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .instructions {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+        .upload-area {
+            border: 2px dashed #fff;
+            border-radius: 10px;
+            padding: 40px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .upload-area input {
+            display: none;
+        }
+        .sample-images {
+            margin: 20px 0;
+        }
+        .sample-images img {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .sample-images img:hover {
+            transform: scale(1.1);
+        }
+        .before-after {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            display: none;
+        }
+        .before-after img {
+            width: 100%;
+            display: block;
+        }
+        .before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            clip-path: inset(0 50% 0 0);
+        }
+        .slider {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            background: #fff;
+            cursor: ew-resize;
+            transform: translateX(-50%);
+        }
+        .slider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .download-btn {
+            display: none;
+            background: #fff;
+            color: #667eea;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 20px 0;
+            transition: background 0.3s;
+        }
+        .download-btn:hover {
+            background: #f0f0f0;
+        }
+        .social-share {
+            margin-top: 20px;
+        }
+        .social-share a {
+            margin: 0 10px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.5em;
+            transition: color 0.3s;
+        }
+        .social-share a:hover {
+            color: #f0f0f0;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+            }
+            .upload-area {
+                padding: 20px;
+            }
+            .sample-images img {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Zoom Enhancer</h1>
+        <div class="instructions">
+            <p>Upload a blurry or low-resolution image to enhance it with AI super-resolution. Drag and drop or click to select a file. Try our sample images below!</p>
+        </div>
+        <div class="upload-area" id="uploadArea">
+            <p>Drag & drop your image here or click to browse</p>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+        <div class="sample-images">
+            <p>Sample Images:</p>
+            <img src="https://via.placeholder.com/100x100?text=Sample1" alt="Sample 1" onclick="loadSample('https://via.placeholder.com/300x300?text=Blurry+Sample1')">
+            <img src="https://via.placeholder.com/100x100?text=Sample2" alt="Sample 2" onclick="loadSample('https://via.placeholder.com/300x300?text=Blurry+Sample2')">
+            <img src="https://via.placeholder.com/100x100?text=Sample3" alt="Sample 3" onclick="loadSample('https://via.placeholder.com/300x300?text=Blurry+Sample3')">
+        </div>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Enhancing your image with AI...</p>
+        </div>
+        <div class="before-after" id="beforeAfter">
+            <img src="" alt="Original" class="original">
+            <img src="" alt="Enhanced" class="enhanced before">
+            <div class="slider" id="slider"></div>
+        </div>
+        <button class="download-btn" id="downloadBtn">Download Enhanced Image</button>
+        <div class="social-share">
+            <p>Share this app:</p>
+            <a href="https://twitter.com/intent/tweet?text=Check%20out%20AI%20Zoom%20Enhancer%20-%20Enhance%20your%20images%20with%20AI!&url=https://yourappurl.com" target="_blank">🐦</a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https://yourappurl.com" target="_blank">📘</a>
+            <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://yourappurl.com" target="_blank">💼</a>
+        </div>
+    </div>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const loading = document.getElementById('loading');
+        const beforeAfter = document.getElementById('beforeAfter');
+        const originalImg = document.querySelector('.original');
+        const enhancedImg = document.querySelector('.enhanced');
+        const slider = document.getElementById('slider');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const apiKey = 'r8_DEMO_KEY_PLACEHOLDER'; // Replace with actual key
+
+        let originalFile = null;
+        let enhancedUrl = null;
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length) handleFile(files[0]);
+        });
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            originalFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalImg.src = e.target.result;
+                beforeAfter.style.display = 'block';
+                enhancedImg.src = ''; // Clear enhanced
+                downloadBtn.style.display = 'none';
+                processImage(file);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadSample(url) {
+            fetch(url)
+                .then(res => res.blob())
+                .then(blob => {
+                    const file = new File([blob], 'sample.jpg', { type: 'image/jpeg' });
+                    handleFile(file);
+                });
+        }
+
+        async function processImage(file) {
+            loading.style.display = 'block';
+            try {
+                // Upload file to Replicate
+                const formData = new FormData();
+                formData.append('file', file);
+                const uploadRes = await fetch('https://api.replicate.com/v1/files', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${apiKey}`
+                    },
+                    body: formData
+                });
+                const uploadData = await uploadRes.json();
+                const imageUrl = uploadData.urls.get;
+
+                // Create prediction
+                const predRes = await fetch('https://api.replicate.com/v1/predictions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        version: '42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7ba', // real-esrgan model version
+                        input: { image: imageUrl }
+                    })
+                });
+                const predData = await predRes.json();
+                const predictionId = predData.id;
+
+                // Poll for result
+                let status = 'starting';
+                while (status !== 'succeeded' && status !== 'failed') {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    const pollRes = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
+                        headers: { 'Authorization': `Token ${apiKey}` }
+                    });
+                    const pollData = await pollRes.json();
+                    status = pollData.status;
+                    if (status === 'succeeded') {
+                        enhancedUrl = pollData.output;
+                        enhancedImg.src = enhancedUrl;
+                        downloadBtn.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Slider functionality
+        let isDragging = false;
+        slider.addEventListener('mousedown', () => isDragging = true);
+        document.addEventListener('mouseup', () => isDragging = false);
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const rect = beforeAfter.getBoundingClientRect();
+                const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+                const percent = (x / rect.width) * 100;
+                slider.style.left = `${percent}%`;
+                enhancedImg.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+            }
+        });
+
+        // Download
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = enhancedUrl;
+            link.download = 'enhanced_image.png';
+            link.click();
+        });
+    </script>
+</body>
+</html>

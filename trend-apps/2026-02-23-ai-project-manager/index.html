@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Project Manager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            text-align: center;
+            color: #4a4a4a;
+            margin-bottom: 20px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 5px;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .sample-dropdown {
+            display: inline-block;
+            margin-left: 10px;
+        }
+        select {
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .analysis {
+            margin-top: 30px;
+            display: none;
+            animation: slideIn 0.5s ease-in-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .task-list {
+            margin-bottom: 30px;
+        }
+        .task {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s;
+        }
+        .task:hover {
+            background: #e9e9e9;
+        }
+        .task input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .priority {
+            padding: 5px 10px;
+            border-radius: 20px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: auto;
+        }
+        .high { background: #ff4d4d; }
+        .medium { background: #ffa500; }
+        .low { background: #4caf50; }
+        .timeline, .dependencies {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        .kanban {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 20px;
+        }
+        .column {
+            flex: 1;
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            min-height: 300px;
+        }
+        .column h3 {
+            margin-top: 0;
+            color: #4a4a4a;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .card {
+            background: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: move;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .export-btn {
+            display: block;
+            margin: 20px auto;
+            width: fit-content;
+        }
+        @media (max-width: 768px) {
+            .kanban {
+                flex-direction: column;
+            }
+            .container {
+                padding: 10px;
+            }
+            .task {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .priority {
+                margin-left: 0;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Project Manager</h1>
+        <div class="input-section">
+            <label for="project-desc">Paste your project description here:</label>
+            <textarea id="project-desc" placeholder="Describe your project..."></textarea>
+            <button onclick="analyzeProject()">Analyze with AI</button>
+            <div class="sample-dropdown">
+                <select id="samples">
+                    <option value="">Choose a sample project</option>
+                    <option value="Build a personal website: Create a responsive website with HTML, CSS, and JS for my portfolio. Include sections for about, projects, and contact. Add animations and ensure mobile compatibility.">Build a Personal Website</option>
+                    <option value="Organize a family reunion: Plan a reunion for 50 people including venue booking, catering, invitations, and activities. Budget: $5000. Timeline: 3 months.">Organize a Family Reunion</option>
+                    <option value="Launch a startup app: Develop a mobile app for fitness tracking, design UI/UX, code in React Native, test beta version, and market launch. Team of 5, 6 months timeline.">Launch a Startup App</option>
+                </select>
+                <button onclick="loadSample()">Load Sample</button>
+            </div>
+        </div>
+        <div class="analysis" id="analysis">
+            <div class="task-list" id="task-list">
+                <h2>AI Breakdown: Tasks</h2>
+                <!-- Tasks will be inserted here -->
+            </div>
+            <div class="timeline" id="timeline">
+                <h2>Estimated Timeline</h2>
+                <p>Phase 1: Planning (2 weeks)</p>
+                <p>Phase 2: Development (4 weeks)</p>
+                <p>Phase 3: Testing and Launch (1 week)</p>
+                <p>Total: 7 weeks</p>
+            </div>
+            <div class="dependencies" id="dependencies">
+                <h2>Dependencies</h2>
+                <p>Task 2 depends on Task 1</p>
+                <p>Task 4 depends on Task 3</p>
+                <!-- Simple visualization -->
+            </div>
+            <div class="kanban" id="kanban">
+                <div class="column" id="todo" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <h3>To Do</h3>
+                    <!-- Cards will be here -->
+                </div>
+                <div class="column" id="inprogress" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <h3>In Progress</h3>
+                </div>
+                <div class="column" id="done" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <h3>Done</h3>
+                </div>
+            </div>
+            <button class="export-btn" onclick="exportToCalendar()">Export to Calendar</button>
+        </div>
+    </div>
+    <script>
+        function loadSample() {
+            const sample = document.getElementById('samples').value;
+            if (sample) {
+                document.getElementById('project-desc').value = sample;
+            }
+        }
+
+        function analyzeProject() {
+            const desc = document.getElementById('project-desc').value;
+            if (!desc) {
+                alert('Please enter a project description.');
+                return;
+            }
+            // Simulate AI breakdown
+            const tasks = [
+                { name: 'Research and Planning', priority: 'high', checked: false },
+                { name: 'Design Mockups', priority: 'medium', checked: false },
+                { name: 'Development', priority: 'high', checked: false },
+                { name: 'Testing', priority: 'medium', checked: false },
+                { name: 'Deployment', priority: 'low', checked: false }
+            ];
+            document.getElementById('analysis').style.display = 'block';
+            const taskList = document.getElementById('task-list');
+            taskList.innerHTML = '<h2>AI Breakdown: Tasks</h2>';
+            tasks.forEach((task, index) => {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'task';
+                taskDiv.innerHTML = `
+                    <input type="checkbox" id="task${index}" ${task.checked ? 'checked' : ''}>
+                    <label for="task${index}">${task.name}</label>
+                    <span class="priority ${task.priority}">${task.priority.toUpperCase()}</span>
+                `;
+                taskList.appendChild(taskDiv);
+            });
+            // Populate Kanban with cards
+            const todo = document.getElementById('todo');
+            todo.innerHTML = '<h3>To Do</h3>';
+            tasks.forEach((task, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.draggable = true;
+                card.ondragstart = drag;
+                card.innerHTML = `${task.name} <span class="priority ${task.priority}">${task.priority.toUpperCase()}</span>`;
+                todo.appendChild(card);
+            });
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.innerHTML);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.draggable = true;
+            card.ondragstart = drag;
+            card.innerHTML = data;
+            ev.target.appendChild(card);
+        }
+
+        function exportToCalendar() {
+            alert('Simulated export to calendar! In a real app, this would integrate with Google Calendar or similar.');
+        }
+    </script>
+</body>
+</html>

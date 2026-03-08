@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Trend Pulse</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            animation: fadeIn 1s ease-in;
+        }
+        button {
+            background: #ff6b6b;
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        #loading {
+            display: none;
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            animation: pulse 1s infinite;
+        }
+        #results {
+            display: none;
+            margin-top: 2rem;
+            width: 80%;
+            max-width: 800px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #ffeb3b;
+        }
+        .metric {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Trend Pulse</h1>
+    <button id="scanBtn">Scan Twitter Trends</button>
+    <div id="loading">Analyzing trends with Grok API...</div>
+    <div id="results"></div>
+
+    <script>
+        const scanBtn = document.getElementById('scanBtn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+
+        // Mock data simulating Grok API response
+        const mockTrends = [
+            {
+                name: "AI Ethics Debates",
+                engagement: "1.2M tweets, 45% increase",
+                why: "Rising concerns about AI bias and privacy are shaping policy and public opinion."
+            },
+            {
+                name: "Generative AI Art",
+                engagement: "850K tweets, 30% growth",
+                why: "Artists are exploring new creative tools, sparking discussions on originality and copyright."
+            },
+            {
+                name: "AI in Healthcare",
+                engagement: "600K tweets, 25% uptick",
+                why: "Innovations in diagnostics and treatment are accelerating medical advancements."
+            },
+            {
+                name: "Quantum AI Computing",
+                engagement: "400K tweets, 20% rise",
+                why: "Breakthroughs in quantum tech could revolutionize AI processing power."
+            }
+        ];
+
+        scanBtn.addEventListener('click', () => {
+            // Hide button and show loading
+            scanBtn.style.display = 'none';
+            loading.style.display = 'block';
+
+            // Simulate API call delay
+            setTimeout(() => {
+                loading.style.display = 'none';
+                results.style.display = 'block';
+
+                // Display results
+                mockTrends.forEach((trend, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.style.animationDelay = `${index * 0.1}s`;
+                    card.innerHTML = `
+                        <h3>${trend.name}</h3>
+                        <p><span class="metric">Engagement:</span> ${trend.engagement}</p>
+                        <p><strong>Why it matters:</strong> ${trend.why}</p>
+                    `;
+                    results.appendChild(card);
+                });
+            }, 3000); // 3 second delay
+        });
+    </script>
+</body>
+</html>

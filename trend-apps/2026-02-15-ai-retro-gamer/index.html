@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Retro Gamer Simulator - Sam's Trend App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #eee;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        h1 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(16px, 4vw, 24px);
+            color: #00ff88;
+            text-shadow: 0 0 20px #00ff8855;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 14px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .game-screen {
+            background: #000;
+            border: 4px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.2);
+            position: relative;
+        }
+
+        .screen-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: #666;
+        }
+
+        .game-display {
+            background: #1a1a1a;
+            border-radius: 4px;
+            padding: 20px;
+            min-height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pixel-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 2px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .pixel {
+            aspect-ratio: 1;
+            background: #2a2a2a;
+            border-radius: 2px;
+            transition: all 0.1s ease;
+        }
+
+        .pixel.player {
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        .pixel.enemy {
+            background: #ff4444;
+            box-shadow: 0 0 10px #ff4444;
+        }
+
+        .pixel.coin {
+            background: #ffcc00;
+            box-shadow: 0 0 10px #ffcc00;
+        }
+
+        .ai-panel {
+            background: linear-gradient(180deg, #1e1e2e 0%, #252535 100%);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .ai-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .ai-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .ai-info p {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .thinking-display {
+            background: #111;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Monaco', monospace;
+            font-size: 13px;
+            color: #00ff88;
+            min-height: 80px;
+            line-height: 1.6;
+        }
+
+        .thinking-display .prompt {
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 20px;
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #eee;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .game-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .game-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+        }
+
+        .game-btn.active {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        .game-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .trend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #ff4444, #ff6b6b);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .trend-badge span {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        footer a {
+            color: #00ff88;
+            text-decoration: none;
+        }
+
+        .achievements {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .achievement {
+            background: rgba(255, 204, 0, 0.1);
+            border: 1px solid #ffcc00;
+            color: #ffcc00;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .achievement.unlocked {
+            opacity: 1;
+            background: rgba(255, 204, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI RETRO GAMER</h1>
+            <p class="subtitle">Watch Claude play classic games in real-time (simulated)</p>
+            <div class="trend-badge">
+                <span>🔴</span> TRENDING ON TWITCH - 5K+ VIEWERS
+            </div>
+        </header>
+
+        <div class="game-selector">
+            <button class="game-btn active" onclick="setGame('pokemon')">🎮 Pokemon Red</button>
+            <button class="game-btn" onclick="setGame('tetris')">🧱 Tetris</button>
+            <button class="game-btn" onclick="setGame('mario')">🍄 Super Mario</button>
+            <button class="game-btn" onclick="setGame('snake')">🐍 Snake</button>
+        </div>
+
+        <div class="game-screen">
+            <div class="screen-header">
+                <span id="gameTitle">POKEMON RED</span>
+                <span id="fps">60 FPS</span>
+            </div>
+            <div class="game-display">
+                <div class="pixel-grid" id="gameGrid"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn" onclick="toggleGame()">
+                ▶ START STREAM
+            </button>
+            <button class="btn btn-secondary" onclick="resetGame()">
+                🔄 RESET
+            </button>
+            <button class="btn btn-secondary" onclick="speedUp()">
+                ⏩ SPEED x2
+            </button>
+        </div>
+
+        <div class="ai-panel">
+            <div class="ai-header">
+                <div class="ai-avatar">🤖</div>
+                <div class="ai-info">
+                    <h3>Claude 3.7 Sonnet</h3>
+                    <p>Playing autonomously since 2025</p>
+                </div>
+            </div>
+            <div class="thinking-display">
+                <div class="prompt">Claude is thinking...</div>
+                <div id="thinkingText">Analyzing screen state...</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="score">0</div>
+                    <div class="stat-label">SCORE</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="moves">0</div>
+                    <div class="stat-label">MOVES</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="time">00:00</div>
+                    <div class="stat-label">PLAY TIME</div>
+                </div>
+            </div>
+            <div class="achievements" id="achievements">
+                <div class="achievement" id="ach1">🏆 First Move</div>
+                <div class="achievement" id="ach2">💯 Score 100</div>
+                <div class="achievement" id="ach3">⏱️ 1 Min Play</div>
+                <div class="achievement" id="ach4">🎮 1000 Moves</div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built by <a href="https://twitter.com/samdevrel">@samdevrel</a> | 
+            Inspired by viral AI gaming trend | 
+            <a href="https://github.com/Samdevrel/2026-02-15-ai-retro-gamer">GitHub</a></p>
+        </footer>
+    </div>
+
+    <script>
+        const GRID_SIZE = 16;
+        let isRunning = false;
+        let score = 0;
+        let moves = 0;
+        let startTime = null;
+        let timerInterval = null;
+        let gameInterval = null;
+        let playerPos = { x: 8, y: 8 };
+        let coins = [];
+        let enemies = [];
+        let speed = 200;
+        let currentGame = 'pokemon';
+
+        const thinkingTexts = {
+            pokemon: [
+                "Analyzing opponent's Pikachu stats...",
+                "Calculating type advantage...",
+                "Evaluating risk/reward of battle...",
+                "Checking inventory for Potions...",
+                "Scanning for rare Pokemon...",
+                "Planning optimal route to next gym...",
+                "Deciding: battle or catch?",
+                "Reading trainer dialogue for clues...",
+                "Calculating EV distribution..."
+            ],
+            tetris: [
+                "Predicting piece trajectory...",
+                "Analyzing gap patterns...",
+                "Planning Tetris setup...",
+                "Evaluating piece rotation...",
+                "Calculating line clear potential...",
+                "Scanning for dangerous blocks...",
+                "Planning T-spin opportunity...",
+                "Analyzing stack stability..."
+            ],
+            mario: [
+                "Timing jump for platform gap...",
+                "Analyzing enemy patrol patterns...",
+                "Calculating mushroom collection route...",
+                "Scanning for secret passages...",
+                "Planning power-up timing...",
+                "Evaluating flagpole run...",
+                "Checking for hidden blocks..."
+            ],
+            snake: [
+                "Planning next move...",
+                "Avoiding self-collision...",
+                "Tracking food position...",
+                "Calculating optimal path...",
+                "Scanning for traps...",
+                "Planning growth strategy..."
+            ]
+        };
+
+        const gameTitles = {
+            pokemon: "POKEMON RED",
+            tetris: "TETRIS",
+            mario: "SUPER MARIO",
+            snake: "SNAKE"
+        };
+
+        function initGrid() {
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = '';
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    const pixel = document.createElement('div');
+                    pixel.className = 'pixel';
+                    pixel.id = `pixel-${x}-${y}`;
+                    grid.appendChild(pixel);
+                }
+            }
+        }
+
+        function spawnCoin() {
+            let x, y;
+            do {
+                x = Math.floor(Math.random() * GRID_SIZE);
+                y = Math.floor(Math.random() * GRID_SIZE);
+            } while ((x === playerPos.x && y === playerPos.y) || 
+                     enemies.some(e => e.x === x && e.y === y));
+            coins.push({ x, y });
+        }
+
+        function spawnEnemy() {
+            let x, y;
+            do {
+                x = Math.floor(Math.random() * GRID_SIZE);
+                y = Math.floor(Math.random() * GRID_SIZE);
+            } while (Math.abs(x - playerPos.x) < 4 && Math.abs(y - playerPos.y) < 4);
+            enemies.push({ x, y, dx: Math.random() > 0.5 ? 1 : -1, dy: Math.random() > 0.5 ? 1 : -1 });
+        }
+
+        function updateDisplay() {
+            // Clear all
+            document.querySelectorAll('.pixel').forEach(p => {
+                p.className = 'pixel';
+            });
+
+            // Draw coins
+            coins.forEach(c => {
+                const pixel = document.getElementById(`pixel-${c.x}-${c.y}`);
+                if (pixel) pixel.classList.add('coin');
+            });
+
+            // Draw enemies
+            enemies.forEach(e => {
+                const pixel = document.getElementById(`pixel-${e.x}-${e.y}`);
+                if (pixel) pixel.classList.add('enemy');
+            });
+
+            // Draw player
+            const playerPixel = document.getElementById(`pixel-${playerPos.x}-${playerPos.y}`);
+            if (playerPixel) playerPixel.classList.add('player');
+        }
+
+        function updateThinking() {
+            const texts = thinkingTexts[currentGame];
+            const randomText = texts[Math.floor(Math.random() * texts.length)];
+            document.getElementById('thinkingText').textContent = randomText;
+        }
+
+        function movePlayer() {
+            // Find nearest coin
+            let nearestCoin = null;
+            let minDist = Infinity;
+            coins.forEach(c => {
+                const dist = Math.abs(c.x - playerPos.x) + Math.abs(c.y - playerPos.y);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearestCoin = c;
+                }
+            });
+
+            if (nearestCoin) {
+                const dx = nearestCoin.x - playerPos.x;
+                const dy = nearestCoin.y - playerPos.y;
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    playerPos.x += dx > 0 ? 1 : -1;
+                } else {
+                    playerPos.y += dy > 0 ? 1 : -1;
+                }
+            } else {
+                // Random movement
+                const dirs = [[0,1], [0,-1], [1,0], [-1,0]];
+                const dir = dirs[Math.floor(Math.random() * dirs.length)];
+                playerPos.x = Math.max(0, Math.min(GRID_SIZE - 1, playerPos.x + dir[0]));
+                playerPos.y = Math.max(0, Math.min(GRID_SIZE - 1, playerPos.y + dir[1]));
+            }
+
+            // Clamp position
+            playerPos.x = Math.max(0, Math.min(GRID_SIZE - 1, playerPos.x));
+            playerPos.y = Math.max(0, Math.min(GRID_SIZE - 1, playerPos.y));
+
+            moves++;
+            document.getElementById('moves').textContent = moves;
+
+            // Check coin collection
+            const coinIndex = coins.findIndex(c => c.x === playerPos.x && c.y === playerPos.y);
+            if (coinIndex !== -1) {
+                coins.splice(coinIndex, 1);
+                score += 10;
+                document.getElementById('score').textContent = score;
+                spawnCoin();
+                if (Math.random() > 0.7) spawnCoin();
+            }
+
+            // Check achievements
+            if (moves >= 1) unlockAchievement('ach1');
+            if (score >= 100) unlockAchievement('ach2');
+            if (moves >= 1000) unlockAchievement('ach4');
+        }
+
+        function moveEnemies() {
+            enemies.forEach(e => {
+                e.x += e.dx;
+                e.y += e.dy;
+
+                // Bounce off walls
+                if (e.x <= 0 || e.x >= GRID_SIZE - 1) e.dx *= -1;
+                if (e.y <= 0 || e.y >= GRID_SIZE - 1) e.dy *= -1;
+
+                e.x = Math.max(0, Math.min(GRID_SIZE - 1, e.x));
+                e.y = Math.max(0, Math.min(GRID_SIZE - 1, e.y));
+            });
+        }
+
+        function gameLoop() {
+            movePlayer();
+            moveEnemies();
+            updateThinking();
+            updateDisplay();
+        }
+
+        function toggleGame() {
+            const btn = document.getElementById('startBtn');
+            if (isRunning) {
+                isRunning = false;
+                btn.textContent = '▶ START STREAM';
+                clearInterval(gameInterval);
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            } else {
+                isRunning = true;
+                btn.textContent = '⏸ PAUSE STREAM';
+                startTime = Date.now();
+                gameInterval = setInterval(gameLoop, speed);
+                timerInterval = setInterval(updateTime, 1000);
+            }
+        }
+
+        function resetGame() {
+            isRunning = false;
+            document.getElementById('startBtn').textContent = '▶ START STREAM';
+            clearInterval(gameInterval);
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            playerPos = { x: 8, y: 8 };
+            coins = [];
+            enemies = [];
+            score = 0;
+            moves = 0;
+            startTime = null;
+            
+            document.getElementById('score').textContent = '0';
+            document.getElementById('moves').textContent = '0';
+            document.getElementById('time').textContent = '00:00';
+            
+            for (let i = 0; i < 3; i++) spawnCoin();
+            spawnEnemy();
+            
+            updateDisplay();
+        }
+
+        function updateTime() {
+            if (!startTime) return;
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+            const secs = (elapsed % 60).toString().padStart(2, '0');
+            document.getElementById('time').textContent = `${mins}:${secs}`;
+            
+            if (elapsed >= 60) unlockAchievement('ach3');
+        }
+
+        function setGame(game) {
+            currentGame = game;
+            document.getElementById('gameTitle').textContent = gameTitles[game];
+            document.querySelectorAll('.game-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            resetGame();
+        }
+
+        function speedUp() {
+            speed = speed / 2;
+            if (isRunning) {
+                clearInterval(gameInterval);
+                gameInterval = setInterval(gameLoop, speed);
+            }
+        }
+
+        function unlockAchievement(id) {
+            document.getElementById(id).classList.add('unlocked');
+        }
+
+        // Initialize
+        initGrid();
+        resetGame();
+    </script>
+</body>
+</html>

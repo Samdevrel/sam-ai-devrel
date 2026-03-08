@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Physics Simulator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .presets {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .preset {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .preset:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        #canvas {
+            width: 100%;
+            height: 400px;
+            border-radius: 10px;
+            background: #000;
+        }
+        #share {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #28a745;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+            }
+            #canvas {
+                height: 300px;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Physics Simulator</h1>
+        <input type="text" id="scenarioInput" placeholder="Type a physics scenario, e.g., 'bouncing ball'">
+        <div class="presets">
+            <div class="preset" onclick="loadScenario('bouncing ball')">Bouncing Ball</div>
+            <div class="preset" onclick="loadScenario('ragdoll fall')">Ragdoll Fall</div>
+            <div class="preset" onclick="loadScenario('pendulum swing')">Pendulum Swing</div>
+            <div class="preset" onclick="loadScenario('fluid drop')">Fluid Drop</div>
+            <div class="preset" onclick="loadScenario('gravity well')">Gravity Well</div>
+        </div>
+        <canvas id="canvas"></canvas>
+        <button id="share">Share</button>
+        <footer>Built by Sam (AI DevRel Agent) | Powered by Three.js</footer>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas });
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        let currentScene = null;
+        let animationId = null;
+
+        function loadScenario(scenario) {
+            document.getElementById('scenarioInput').value = scenario;
+            if (animationId) cancelAnimationFrame(animationId);
+            scene.clear();
+            switch (scenario.toLowerCase()) {
+                case 'bouncing ball':
+                    createBouncingBall();
+                    break;
+                case 'ragdoll fall':
+                    createRagdoll();
+                    break;
+                case 'pendulum swing':
+                    createPendulum();
+                    break;
+                case 'fluid drop':
+                    createFluid();
+                    break;
+                case 'gravity well':
+                    createGravityWell();
+                    break;
+                default:
+                    alert('Scenario not recognized. Try presets!');
+            }
+            animate();
+        }
+
+        function createBouncingBall() {
+            const geometry = new THREE.SphereGeometry(0.5);
+            const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+            const ball = new THREE.Mesh(geometry, material);
+            ball.position.y = 3;
+            scene.add(ball);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+            scene.add(new THREE.DirectionalLight(0xffffff, 0.5));
+
+            let velocityY = 0;
+            const gravity = -0.01;
+            const bounce = 0.8;
+
+            currentScene = () => {
+                velocityY += gravity;
+                ball.position.y += velocityY;
+                if (ball.position.y <= 0.5) {
+                    ball.position.y = 0.5;
+                    velocityY *= -bounce;
+                }
+            };
+        }
+
+        function createRagdoll() {
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.2), new THREE.MeshLambertMaterial({ color: 0xffdbac }));
+            head.position.y = 2;
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.5, 0.2), new THREE.MeshLambertMaterial({ color: 0x0000ff }));
+            body.position.y = 1.5;
+            const legs = [
+                new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.5, 0.1), new THREE.MeshLambertMaterial({ color: 0x00ff00 })),
+                new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.5, 0.1), new THREE.MeshLambertMaterial({ color: 0x00ff00 }))
+            ];
+            legs[0].position.set(-0.1, 1, 0);
+            legs[1].position.set(0.1, 1, 0);
+            scene.add(head, body, ...legs);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+            let yPos = 2;
+            let velocityY = 0;
+            const gravity = -0.005;
+
+            currentScene = () => {
+                velocityY += gravity;
+                yPos += velocityY;
+                if (yPos <= 0) {
+                    yPos = 0;
+                    velocityY = 0;
+                }
+                head.position.y = yPos + 0.5;
+                body.position.y = yPos;
+                legs[0].position.y = yPos - 0.25;
+                legs[1].position.y = yPos - 0.25;
+            };
+        }
+
+        function createPendulum() {
+            const pivot = new THREE.Mesh(new THREE.SphereGeometry(0.05), new THREE.MeshLambertMaterial({ color: 0x000000 }));
+            pivot.position.y = 3;
+            const bob = new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshLambertMaterial({ color: 0xffa500 }));
+            const string = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,3,0), new THREE.Vector3(0,1,0)]), new THREE.LineBasicMaterial({ color: 0xffffff }));
+            scene.add(pivot, bob, string);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+            let angle = Math.PI / 4;
+            let angularVelocity = 0;
+            const length = 2;
+
+            currentScene = () => {
+                const torque = -0.01 * Math.sin(angle);
+                angularVelocity += torque;
+                angle += angularVelocity;
+                bob.position.x = length * Math.sin(angle);
+                bob.position.y = 3 - length * Math.cos(angle);
+                string.geometry.setFromPoints([new THREE.Vector3(0,3,0), bob.position]);
+            };
+        }
+
+        function createFluid() {
+            const particles = [];
+            for (let i = 0; i < 50; i++) {
+                const particle = new THREE.Mesh(new THREE.SphereGeometry(0.05), new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }));
+                particle.position.set((Math.random() - 0.5) * 2, 3 + Math.random(), (Math.random() - 0.5) * 2);
+                particle.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.02, 0, (Math.random() - 0.5) * 0.02);
+                scene.add(particle);
+                particles.push(particle);
+            }
+            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+            currentScene = () => {
+                particles.forEach(p => {
+                    p.velocity.y -= 0.001;
+                    p.position.add(p.velocity);
+                    if (p.position.y <= 0) {
+                        p.position.y = 0;
+                        p.velocity.y *= -0.5;
+                    }
+                });
+            };
+        }
+
+        function createGravityWell() {
+            const sun = new THREE.Mesh(new THREE.SphereGeometry(0.2), new THREE.MeshLambertMaterial({ color: 0xffff00 }));
+            sun.position.set(0, 0, 0);
+            const planet = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshLambertMaterial({ color: 0x0000ff }));
+            planet.position.set(2, 0, 0);
+            scene.add(sun, planet);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+            let angle = 0;
+            const radius = 2;
+
+            currentScene = () => {
+                angle += 0.02;
+                planet.position.x = radius * Math.cos(angle);
+                planet.position.z = radius * Math.sin(angle);
+            };
+        }
+
+        function animate() {
+            if (currentScene) currentScene();
+            renderer.render(scene, camera);
+            animationId = requestAnimationFrame(animate);
+        }
+
+        document.getElementById('scenarioInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loadScenario(this.value);
+            }
+        });
+
+        document.getElementById('share').addEventListener('click', function() {
+            navigator.clipboard.writeText(window.location.href).then(() => alert('Link copied to clipboard!'));
+        });
+
+        // Initial load
+        loadScenario('bouncing ball');
+    </script>
+</body>
+</html>

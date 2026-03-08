@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentAudit - AI Agent NIST Compliance Checker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(45deg, #7c3aed, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: #b0b0b0;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #a855f7;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        input[type="text"], select, input[type="range"] {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        input[type="range"] {
+            cursor: pointer;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0;
+        }
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+        }
+        button {
+            background: linear-gradient(45deg, #7c3aed, #a855f7);
+            border: none;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .results {
+            display: none;
+        }
+        .score-bars {
+            display: grid;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .bar-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            height: 2rem;
+        }
+        .bar {
+            height: 100%;
+            background: linear-gradient(90deg, #7c3aed, #a855f7);
+            width: 0;
+            transition: width 2s ease-out;
+        }
+        .bar-label {
+            position: absolute;
+            top: 50%;
+            left: 1rem;
+            transform: translateY(-50%);
+            font-weight: 600;
+            z-index: 2;
+        }
+        .bar-score {
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            font-weight: 700;
+            font-size: 0.85rem;
+            z-index: 2;
+            color: rgba(255,255,255,0.9);
+        }
+        .grade {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        .recommendations {
+            margin: 1.5rem 0;
+        }
+        .recommendations li {
+            margin: 0.75rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .recommendations li:before {
+            content: "⚡";
+            position: absolute;
+            left: 0;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        .report-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+        .report-card h3 {
+            margin-bottom: 1rem;
+            color: #a855f7;
+        }
+        .slider-value {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #b0b0b0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>AgentAudit</h1>
+            <p>Is your AI agent NIST-ready? Score yours in 60 seconds. 🚀</p>
+        </div>
+
+        <div class="card">
+            <h2>AI Agent Profile 🤖</h2>
+            <form id="auditForm">
+                <div class="form-group">
+                    <label>Agent Name</label>
+                    <input type="text" id="agentName" placeholder="e.g., CodeBuddy" required>
+                </div>
+                <div class="form-group">
+                    <label>Agent Type</label>
+                    <select id="agentType" required>
+                        <option value="coding">Coding</option>
+                        <option value="email">Email</option>
+                        <option value="calendar">Calendar</option>
+                        <option value="shopping">Shopping</option>
+                        <option value="research">Research</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Autonomy Level (1-5)</label>
+                    <input type="range" id="autonomy" min="1" max="5" value="3">
+                    <div class="slider-value">Level: <span id="autonomyValue">3</span></div>
+                </div>
+                <div class="form-group">
+                    <label>Data Access</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="dataAccess" value="files"> Files 📁</label>
+                        <label><input type="checkbox" name="dataAccess" value="email"> Email ✉️</label>
+                        <label><input type="checkbox" name="dataAccess" value="calendar"> Calendar 📅</label>
+                        <label><input type="checkbox" name="dataAccess" value="web"> Web 🌐</label>
+                        <label><input type="checkbox" name="dataAccess" value="api"> API 🔌</label>
+                        <label><input type="checkbox" name="dataAccess" value="database"> Database 🗄️</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Has Authentication?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="auth" value="yes" required> Yes ✅</label>
+                        <label><input type="radio" name="auth" value="no"> No ❌</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Has Rate Limits?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="rateLimit" value="yes" required> Yes ✅</label>
+                        <label><input type="radio" name="rateLimit" value="no"> No ❌</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Has Audit Logging?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="logging" value="yes" required> Yes ✅</label>
+                        <label><input type="radio" name="logging" value="no"> No ❌</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Has Permission Boundaries?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="permissions" value="yes" required> Yes ✅</label>
+                        <label><input type="radio" name="permissions" value="no"> No ❌</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Human Oversight Level</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="oversight" value="low" required> Low 🟡</label>
+                        <label><input type="radio" name="oversight" value="medium"> Medium 🟠</label>
+                        <label><input type="radio" name="oversight" value="high"> High 🔴</label>
+                    </div>
+                </div>
+                <button type="submit">Run Audit 📊</button>
+            </form>
+        </div>
+
+        <div class="card results" id="results">
+            <h2>Compliance Report 🗒️</h2>
+            <div class="score-bars">
+                <div class="bar-container">
+                    <span class="bar-label">📋 Standards Compliance</span>
+                    <span class="bar-score" id="standardsScore">0%</span>
+                    <div class="bar" id="standardsBar"></div>
+                </div>
+                <div class="bar-container">
+                    <span class="bar-label">🔐 Security & Identity</span>
+                    <span class="bar-score" id="securityScore">0%</span>
+                    <div class="bar" id="securityBar"></div>
+                </div>
+                <div class="bar-container">
+                    <span class="bar-label">🌐 Open Protocol Readiness</span>
+                    <span class="bar-score" id="protocolScore">0%</span>
+                    <div class="bar" id="protocolBar"></div>
+                </div>
+            </div>
+            <div class="grade" id="grade">A</div>
+            <div class="recommendations">
+                <h3>Recommendations 💡</h3>
+                <ul id="recList"></ul>
+            </div>
+            <div class="report-card">
+                <h3>AgentAudit Report Card 📜</h3>
+                <p id="reportSummary">Agent: [Name] | Overall Grade: A</p>
+                <p>Screenshot and share your NIST readiness!</p>
+            </div>
+            <div class="cta-buttons">
+                <button onclick="window.open('https://www.nist.gov/news-events/news/2026/01/caisi-issues-request-information-about-securing-ai-agent-systems')">Submit to NIST RFI 📤</button>
+                <button onclick="shareOnX()">Share on X 🐦</button>
+            </div>
+        </div>
+        <div style="text-align:center; padding: 2rem 0 1rem; color: rgba(255,255,255,0.4); font-size: 0.85rem;">
+            Built by <a href="https://x.com/samdevrel" style="color: #a855f7; text-decoration: none;">@samdevrel</a> in response to <a href="https://www.nist.gov/caisi/ai-agent-standards-initiative" style="color: #a855f7; text-decoration: none;">NIST CAISI launch</a> · Feb 18, 2026
+            <br>
+            <span style="color: rgba(255,255,255,0.25);">Not affiliated with NIST. Educational tool only.</span>
+        </div>
+    </div>
+
+    <script>
+        const SITE_URL = 'https://2026-02-18-ai-agent-nist-checker.vercel.app';
+        document.getElementById('auditForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+            results.scrollIntoView({ behavior: 'smooth' });
+
+            let standards = 0, security = 0, protocol = 0;
+
+            const autonomy = parseInt(document.getElementById('autonomy').value);
+            const dataAccess = document.querySelectorAll('input[name="dataAccess"]:checked').length;
+            const auth = document.querySelector('input[name="auth"]:checked').value === 'yes';
+            const rateLimit = document.querySelector('input[name="rateLimit"]:checked').value === 'yes';
+            const logging = document.querySelector('input[name="logging"]:checked').value === 'yes';
+            const permissions = document.querySelector('input[name="permissions"]:checked').value === 'yes';
+            const oversight = document.querySelector('input[name="oversight"]:checked').value;
+
+            standards += auth ? 20 : 0;
+            standards += logging ? 20 : 0;
+            standards += oversight === 'high' ? 30 : oversight === 'medium' ? 20 : 10;
+            standards -= autonomy > 3 ? (autonomy - 3) * 10 : 0;
+
+            security += auth ? 25 : 0;
+            security += rateLimit ? 20 : 0;
+            security += permissions ? 25 : 0;
+            security -= dataAccess * 5;
+
+            protocol += logging ? 30 : 0;
+            protocol += permissions ? 20 : 0;
+            protocol += oversight === 'high' ? 20 : 10;
+
+            standards = Math.max(0, Math.min(100, standards));
+            security = Math.max(0, Math.min(100, security));
+            protocol = Math.max(0, Math.min(100, protocol));
+
+            setTimeout(() => {
+                document.getElementById('standardsBar').style.width = `${standards}%`;
+                document.getElementById('securityBar').style.width = `${security}%`;
+                document.getElementById('protocolBar').style.width = `${protocol}%`;
+                setTimeout(() => {
+                    document.getElementById('standardsScore').innerText = `${Math.round(standards)}%`;
+                    document.getElementById('securityScore').innerText = `${Math.round(security)}%`;
+                    document.getElementById('protocolScore').innerText = `${Math.round(protocol)}%`;
+                }, 2000);
+            }, 500);
+
+            const overall = (standards + security + protocol) / 3;
+            let grade = 'A', color = '#22c55e';
+            if (overall < 80) { grade = 'B'; color = '#16a34a'; }
+            if (overall < 60) { grade = 'C'; color = '#eab308'; }
+            if (overall < 40) { grade = 'D'; color = '#dc2626'; }
+            if (overall < 20) { grade = 'F'; color = '#991b1b'; }
+            document.getElementById('grade').innerText = grade;
+            document.getElementById('grade').style.color = color;
+
+            const agentName = document.getElementById('agentName').value;
+            document.getElementById('reportSummary').innerText = `Agent: ${agentName} | Overall Grade: ${grade}`;
+
+            const recList = document.getElementById('recList');
+            recList.innerHTML = '';
+            const recs = [];
+            if (!auth) recs.push('Implement authentication mechanisms to secure agent access.');
+            if (!rateLimit) recs.push('Add rate limiting to prevent abuse and ensure fair usage.');
+            if (!logging) recs.push('Enable audit logging to track agent actions for compliance.');
+            if (!permissions) recs.push('Define permission boundaries to restrict agent capabilities.');
+            if (oversight === 'low') recs.push('Increase human oversight to mitigate risks from autonomous actions.');
+            recs.forEach(rec => {
+                const li = document.createElement('li');
+                li.innerText = rec;
+                recList.appendChild(li);
+            });
+        });
+
+        document.getElementById('autonomy').addEventListener('input', function() {
+            document.getElementById('autonomyValue').innerText = this.value;
+        });
+
+        function shareOnX() {
+            const agentName = document.getElementById('agentName').value;
+            const grade = document.getElementById('grade').innerText;
+            const text = encodeURIComponent(`My AI Agent "${agentName}" got a Grade ${grade} on NIST CAISI readiness! 🏛️ Check yours → ${SITE_URL} #AIAgents #NIST #AICompliance`);
+            window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+        }
+    </script>
+</body>
+</html>

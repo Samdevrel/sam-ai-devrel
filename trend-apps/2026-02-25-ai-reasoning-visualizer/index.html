@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Reasoning Visualizer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px;
+            animation: fadeIn 1s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            text-align: center;
+            color: #4a4a4a;
+            margin-bottom: 20px;
+        }
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .custom-input {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+        }
+        .thinking {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 20px 0;
+            display: none;
+        }
+        .dots {
+            display: inline-block;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink {
+            0%, 20% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .reasoning {
+            margin-top: 20px;
+        }
+        .step {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        .step.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @media (max-width: 600px) {
+            .examples {
+                flex-direction: column;
+                align-items: center;
+            }
+            button {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Reasoning Visualizer</h1>
+        <div class="examples">
+            <button onclick="showExample('math')">Math Problem</button>
+            <button onclick="showExample('logic')">Logic Puzzle</button>
+            <button onclick="showExample('coding')">Coding Challenge</button>
+            <button onclick="showExample('physics')">Physics Question</button>
+        </div>
+        <div class="custom-input">
+            <textarea id="customQuestion" placeholder="Try your own question... (e.g., 'Solve 5x - 2 = 13')"></textarea>
+            <button onclick="showCustom()">Visualize</button>
+        </div>
+        <div class="thinking" id="thinking">Thinking<span class="dots">...</span></div>
+        <div class="reasoning" id="reasoning"></div>
+    </div>
+    <script>
+        const examples = {
+            math: {
+                problem: "Solve for x: 2x + 3 = 7",
+                steps: [
+                    "Step 1: Understand the equation. We have 2x + 3 = 7, and we need to isolate x.",
+                    "Step 2: Subtract 3 from both sides: 2x + 3 - 3 = 7 - 3 → 2x = 4",
+                    "Step 3: Divide both sides by 2: 2x / 2 = 4 / 2 → x = 2",
+                    "Conclusion: The solution is x = 2."
+                ]
+            },
+            logic: {
+                problem: "If all roses are flowers, and some flowers fade quickly, do all roses fade quickly?",
+                steps: [
+                    "Step 1: Identify the premises. All roses are flowers (universal). Some flowers fade quickly (particular).",
+                    "Step 2: Analyze the logic. This is a classic syllogism. The conclusion would be that some roses fade quickly, but not all.",
+                    "Step 3: Reason: Since not all flowers fade quickly, and roses are a subset, we can't conclude all roses do.",
+                    "Conclusion: No, not all roses fade quickly; only some might."
+                ]
+            },
+            coding: {
+                problem: "Write a function to reverse a string in JavaScript.",
+                steps: [
+                    "Step 1: Understand the task: Take a string and return it reversed.",
+                    "Step 2: Plan: Use built-in methods like split, reverse, and join.",
+                    "Step 3: Implement: function reverseString(str) { return str.split('').reverse().join(''); }",
+                    "Conclusion: The function reverses the string efficiently."
+                ]
+            },
+            physics: {
+                problem: "Calculate the force if mass is 5 kg and acceleration is 2 m/s².",
+                steps: [
+                    "Step 1: Recall Newton's second law: F = m * a",
+                    "Step 2: Identify values: m = 5 kg, a = 2 m/s²",
+                    "Step 3: Compute: F = 5 * 2 = 10 N",
+                    "Conclusion: The force is 10 Newtons."
+                ]
+            }
+        };
+
+        function showExample(type) {
+            const data = examples[type];
+            startThinking(data.problem, data.steps);
+        }
+
+        function showCustom() {
+            const question = document.getElementById('customQuestion').value.trim();
+            if (!question) return;
+            // Simulate custom reasoning based on keywords
+            let steps = ["Step 1: Analyzing the question...", "Step 2: Planning a response...", "Step 3: Executing...", "Conclusion: This is a simulated response for custom input."];
+            if (question.toLowerCase().includes('solve')) {
+                steps = ["Step 1: This seems like a math problem.", "Step 2: Assuming it's linear, isolate variables.", "Step 3: Compute.", "Conclusion: Solution provided."];
+            }
+            startThinking(question, steps);
+        }
+
+        function startThinking(problem, steps) {
+            const thinking = document.getElementById('thinking');
+            const reasoning = document.getElementById('reasoning');
+            reasoning.innerHTML = `<h3>${problem}</h3>`;
+            thinking.style.display = 'block';
+            setTimeout(() => {
+                thinking.style.display = 'none';
+                unfoldSteps(steps, reasoning);
+            }, 2000);
+        }
+
+        function unfoldSteps(steps, container) {
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    const stepDiv = document.createElement('div');
+                    stepDiv.className = 'step';
+                    stepDiv.textContent = step;
+                    container.appendChild(stepDiv);
+                    setTimeout(() => stepDiv.classList.add('show'), 100);
+                }, index * 1000);
+            });
+        }
+    </script>
+</body>
+</html>

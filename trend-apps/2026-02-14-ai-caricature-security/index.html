@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Caricature Risk Analyzer | Sam DevRel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .risk-meter { transition: all 0.5s ease; }
+        .risk-low { background: linear-gradient(135deg, #10b981, #059669); }
+        .risk-medium { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .risk-high { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .card { backdrop-filter: blur(10px); background: rgba(255,255,255,0.05); }
+        .glow { box-shadow: 0 0 40px rgba(139, 92, 246, 0.3); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .animate-pulse-slow { animation: pulse 2s ease-in-out infinite; }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <div class="inline-flex items-center gap-2 bg-purple-500/20 px-4 py-2 rounded-full text-purple-300 text-sm mb-4">
+                <span class="animate-pulse-slow">🔮</span>
+                <span>Trending Now: AI Caricatures</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+                AI Caricature Risk Analyzer
+            </h1>
+            <p class="text-slate-400 text-lg">Before you upload that photo, know the risks</p>
+        </header>
+
+        <!-- Main Risk Meter -->
+        <div class="card rounded-2xl p-8 mb-8 glow border border-purple-500/30">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold">Your Risk Score</h2>
+                <span id="riskLabel" class="text-2xl font-bold">Low Risk</span>
+            </div>
+            <div class="h-6 bg-slate-700 rounded-full overflow-hidden mb-4">
+                <div id="riskBar" class="risk-meter h-full risk-low" style="width: 20%"></div>
+            </div>
+            <p id="riskDescription" class="text-slate-400 text-sm">
+                You're being cautious. Stay that way.
+            </p>
+        </div>
+
+        <!-- Risk Factors Checklist -->
+        <div class="card rounded-2xl p-6 mb-8 border border-purple-500/20">
+            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span>⚠️</span> Risk Factors
+            </h3>
+            <div class="space-y-3" id="riskFactors">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+
+        <!-- Hidden Data Visualization -->
+        <div class="card rounded-2xl p-6 mb-8 border border-purple-500/20">
+            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span>👁️</span> What AI Sees in Your Photo
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="dataTypes">
+                <div class="data-item bg-slate-800/50 rounded-lg p-3 text-center opacity-50">
+                    <div class="text-2xl mb-1">👤</div>
+                    <div class="text-xs text-slate-400">Face ID Data</div>
+                </div>
+                <div class="data-item bg-slate-800/50 rounded-lg p-3 text-center opacity-50">
+                    <div class="text-2xl mb-1">📍</div>
+                    <div class="text-xs text-slate-400">Location (EXIF)</div>
+                </div>
+                <div class="data-item bg-slate-800/50 rounded-lg p-3 text-center opacity-50">
+                    <div class="text-2xl mb-1">👥</div>
+                    <div class="text-xs text-slate-400">Social Graph</div>
+                </div>
+                <div class="data-item bg-slate-800/50 rounded-lg p-3 text-center opacity-50">
+                    <div class="text-2xl mb-1">🎭</div>
+                    <div class="text-xs text-slate-400">Biometric Hash</div>
+                </div>
+            </div>
+            <p class="text-slate-500 text-xs mt-4 text-center">
+                Based on your selected risk factors, AI can extract this hidden data
+            </p>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="card rounded-2xl p-6 mb-8 border border-green-500/20">
+            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2 text-green-400">
+                <span>✅</span> Safer Alternatives
+            </h3>
+            <ul class="space-y-2 text-slate-300 text-sm" id="tipsList">
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400">→</span>
+                    Use local AI tools (data stays on your device)
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400">→</span>
+                    Crop faces before uploading (remove identifying features)
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400">→</span>
+                    Use throwaway images, not personal photos
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400">→</span>
+                    Check platform's data retention policy first
+                </li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-slate-500 text-sm">
+            <p>Built by <a href="https://x.com/samdevrel" class="text-purple-400 hover:underline">@samdevrel</a> | AI Security & Delegation Expert</p>
+            <p class="mt-2 text-xs">Data stays in your browser. Nothing is uploaded.</p>
+        </footer>
+    </div>
+
+    <script>
+        const riskFactors = [
+            { id: 'face', text: 'Including clear face photo', weight: 3, dataTypes: ['👤', '🎭'] },
+            { id: 'personal', text: 'Using personal/sensitive photos', weight: 4, dataTypes: ['👤', '👥', '🎭'] },
+            { id: 'background', text: 'Background reveals location/home', weight: 2, dataTypes: ['📍'] },
+            { id: 'public', text: 'Sharing results publicly', weight: 3, dataTypes: ['👤', '👥'] },
+            { id: 'no-privacy', text: 'Haven\'t checked platform privacy policy', weight: 2, dataTypes: ['👤', '🎭'] },
+            { id: 'reused', text: 'Using same photo across multiple platforms', weight: 3, dataTypes: ['👤', '🎭', '👥'] },
+        ];
+
+        let selectedFactors = new Set();
+
+        function renderRiskFactors() {
+            const container = document.getElementById('riskFactors');
+            container.innerHTML = riskFactors.map(factor => `
+                <label class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg cursor-pointer hover:bg-slate-700/50 transition-colors">
+                    <input type="checkbox"
+                           id="${factor.id}"
+                           class="w-5 h-5 rounded bg-slate-700 border-purple-500 text-purple-500 focus:ring-purple-500"
+                           onchange="toggleFactor('${factor.id}')">
+                    <span class="flex-1">${factor.text}</span>
+                    <span class="text-xs text-slate-500 bg-slate-700 px-2 py-1 rounded">+${factor.weight} risk</span>
+                </label>
+            `).join('');
+        }
+
+        function toggleFactor(id) {
+            if (selectedFactors.has(id)) {
+                selectedFactors.delete(id);
+            } else {
+                selectedFactors.add(id);
+            }
+            updateRiskScore();
+        }
+
+        function updateRiskScore() {
+            let totalRisk = 0;
+            let allDataTypes = new Set();
+
+            selectedFactors.forEach(id => {
+                const factor = riskFactors.find(f => f.id === id);
+                if (factor) {
+                    totalRisk += factor.weight;
+                    factor.dataTypes.forEach(dt => allDataTypes.add(dt));
+                }
+            });
+
+            // Normalize to 0-100
+            const maxRisk = riskFactors.reduce((sum, f) => sum + f.weight, 0);
+            const riskPercent = Math.min(100, Math.round((totalRisk / maxRisk) * 100));
+
+            // Update UI
+            const riskBar = document.getElementById('riskBar');
+            const riskLabel = document.getElementById('riskLabel');
+            const riskDesc = document.getElementById('riskDescription');
+
+            riskBar.style.width = `${Math.max(10, riskPercent)}%`;
+
+            if (riskPercent < 30) {
+                riskBar.className = 'risk-meter h-full risk-low';
+                riskLabel.textContent = 'Low Risk';
+                riskLabel.className = 'text-2xl font-bold text-green-400';
+                riskDesc.textContent = 'You\'re being cautious. Stay that way.';
+            } else if (riskPercent < 70) {
+                riskBar.className = 'risk-meter h-full risk-medium';
+                riskLabel.textContent = 'Medium Risk';
+                riskLabel.className = 'text-2xl font-bold text-yellow-400';
+                riskDesc.textContent = 'Consider the consequences before uploading.';
+            } else {
+                riskBar.className = 'risk-meter h-full risk-high';
+                riskLabel.textContent = 'High Risk';
+                riskLabel.className = 'text-2xl font-bold text-red-400';
+                riskDesc.textContent = 'This could expose your biometric data permanently.';
+            }
+
+            // Update data types visualization
+            document.querySelectorAll('.data-item').forEach(item => {
+                item.classList.remove('glow', 'border-2', 'border-purple-500');
+                item.classList.add('opacity-50');
+            });
+
+            const dataItems = document.querySelectorAll('.data-item');
+            allDataTypes.forEach(icon => {
+                dataItems.forEach(item => {
+                    if (item.querySelector('.text-2xl').textContent === icon) {
+                        item.classList.remove('opacity-50');
+                        item.classList.add('glow', 'border-2', 'border-purple-500');
+                    }
+                });
+            });
+
+            // Update tips based on risk level
+            updateTips(riskPercent);
+        }
+
+        function updateTips(riskPercent) {
+            const tipsList = document.getElementById('tipsList');
+            const baseTips = [
+                '<li class="flex items-start gap-2"><span class="text-green-400">→</span>Use local AI tools (data stays on your device)</li>',
+                '<li class="flex items-start gap-2"><span class="text-green-400">→</span>Crop faces before uploading (remove identifying features)</li>',
+            ];
+
+            if (riskPercent > 30) {
+                baseTips.push('<li class="flex items-start gap-2"><span class="text-green-400">→</span>Use throwaway images, not personal photos</li>');
+            }
+            if (riskPercent > 60) {
+                baseTips.push('<li class="flex items-start gap-2"><span class="text-green-400">→</span>Check platform\'s data retention policy first</li>');
+                baseTips.push('<li class="flex items-start gap-2"><span class="text-yellow-400">⚠️</span><strong>Recommendation:</strong> Don\'t proceed with current settings</li>');
+            }
+
+            tipsList.innerHTML = baseTips.join('');
+        }
+
+        // Initialize
+        renderRiskFactors();
+    </script>
+</body>
+</html>

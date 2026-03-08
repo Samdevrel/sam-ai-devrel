@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Cloning Karaoke</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        #app {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            animation: fadeIn 1s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 1em;
+            resize: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            margin-bottom: 20px;
+        }
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            color: white;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        #record {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 107, 107, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+        }
+        #lyrics-display {
+            margin-top: 20px;
+            font-size: 1.5em;
+            min-height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .word {
+            margin: 5px;
+            padding: 5px 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            animation: highlight 0.5s ease-in-out;
+        }
+        @keyframes highlight {
+            0% { background: rgba(255, 255, 255, 0.5); }
+            100% { background: rgba(255, 255, 255, 0.2); }
+        }
+        #share {
+            margin-top: 20px;
+        }
+        #share button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+        @media (max-width: 768px) {
+            #app {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            button {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>🎤 AI Voice Cloning Karaoke 🎶</h1>
+        <textarea id="lyrics" placeholder="Enter your lyrics here... (e.g., Twinkle twinkle little star)"></textarea>
+        <button id="record">Record Your Voice (5-10 sec)</button>
+        <button id="play" disabled>Play Karaoke!</button>
+        <div id="lyrics-display"></div>
+        <div id="share">
+            <button id="share-twitter">Share on Twitter</button>
+            <button id="share-facebook">Share on Facebook</button>
+        </div>
+    </div>
+
+    <script>
+        const lyricsTextarea = document.getElementById('lyrics');
+        const recordBtn = document.getElementById('record');
+        const playBtn = document.getElementById('play');
+        const lyricsDisplay = document.getElementById('lyrics-display');
+        const shareTwitter = document.getElementById('share-twitter');
+        const shareFacebook = document.getElementById('share-facebook');
+
+        let mediaRecorder;
+        let audioChunks = [];
+        let audioBuffer;
+        let audioContext;
+        let isRecording = false;
+        let words = [];
+        let currentWordIndex = 0;
+
+        // Initialize AudioContext
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            alert('Web Audio API not supported in this browser.');
+        }
+
+        // Record function
+        recordBtn.addEventListener('click', async () => {
+            if (!isRecording) {
+                isRecording = true;
+                recordBtn.textContent = 'Recording... Stop when done!';
+                audioChunks = [];
+
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const arrayBuffer = await audioBlob.arrayBuffer();
+                        audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                        playBtn.disabled = false;
+                        recordBtn.textContent = 'Record Your Voice (5-10 sec)';
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+
+                    mediaRecorder.start();
+                    setTimeout(() => {
+                        if (isRecording) mediaRecorder.stop();
+                    }, 10000); // Auto-stop after 10 sec
+                } catch (err) {
+                    alert('Microphone access denied or not supported.');
+                }
+            } else {
+                isRecording = false;
+                mediaRecorder.stop();
+            }
+        });
+
+        // Play karaoke function
+        playBtn.addEventListener('click', () => {
+            if (!audioBuffer) return;
+
+            const lyrics = lyricsTextarea.value.trim();
+            if (!lyrics) {
+                alert('Please enter some lyrics!');
+                return;
+            }
+
+            words = lyrics.split(/\s+/);
+            lyricsDisplay.innerHTML = '';
+            currentWordIndex = 0;
+
+            // Display words
+            words.forEach(word => {
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'word';
+                wordDiv.textContent = word;
+                lyricsDisplay.appendChild(wordDiv);
+            });
+
+            // Play with effects
+            playSingingKaraoke();
+        });
+
+        function playSingingKaraoke() {
+            const playbackRates = [0.8, 1.0, 1.2, 1.4, 0.9, 1.1]; // Simulate pitch shifts
+            let delay = 0;
+            const wordElements = document.querySelectorAll('.word');
+
+            words.forEach((word, index) => {
+                setTimeout(() => {
+                    if (wordElements[index]) {
+                        wordElements[index].style.animation = 'highlight 0.5s ease-in-out';
+                    }
+
+                    // Create source and apply effects
+                    const source = audioContext.createBufferSource();
+                    source.buffer = audioBuffer;
+
+                    // Simple pitch shift via playback rate
+                    source.playbackRate.value = playbackRates[index % playbackRates.length];
+
+                    // Add reverb/delay for fun effect
+                    const delayNode = audioContext.createDelay(0.5);
+                    delayNode.delayTime.value = 0.3;
+                    const feedback = audioContext.createGain();
+                    feedback.gain.value = 0.4;
+                    delayNode.connect(feedback);
+                    feedback.connect(delayNode);
+
+                    // Distortion for meme effect
+                    const distortion = audioContext.createWaveShaper();
+                    distortion.curve = makeDistortionCurve(400);
+                    distortion.oversample = '4x';
+
+                    source.connect(distortion);
+                    distortion.connect(delayNode);
+                    delayNode.connect(audioContext.destination);
+
+                    source.start();
+                    source.stop(audioContext.currentTime + audioBuffer.duration / source.playbackRate.value);
+                }, delay);
+                delay += 800; // Delay between words
+            });
+        }
+
+        // Create distortion curve
+        function makeDistortionCurve(amount) {
+            const k = typeof amount === 'number' ? amount : 50;
+            const n_samples = 44100;
+            const curve = new Float32Array(n_samples);
+            const deg = Math.PI / 180;
+            for (let i = 0; i < n_samples; ++i) {
+                const x = i * 2 / n_samples - 1;
+                curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+            }
+            return curve;
+        }
+
+        // Share functions
+        shareTwitter.addEventListener('click', () => {
+            const text = encodeURIComponent('Check out this hilarious AI Voice Cloning Karaoke! 🎤🎶 #VoiceCloneKaraoke');
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+        });
+
+        shareFacebook.addEventListener('click', () => {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Swarm Simulator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 16px;
+            resize: none;
+        }
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .simulation {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        .agents {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .agent {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 30%;
+        }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        .chat-bubble {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 10px;
+            border-radius: 15px;
+            max-width: 200px;
+            font-size: 14px;
+            position: relative;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .chat-bubble::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid rgba(255, 255, 255, 0.9);
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecdc4, #ff6b6b);
+            width: 0%;
+            transition: width 2s;
+        }
+        .output {
+            display: none;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        @media (max-width: 600px) {
+            .agents {
+                flex-direction: column;
+                align-items: center;
+            }
+            .agent {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            .chat-bubble {
+                max-width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 AI Agent Swarm Simulator</h1>
+        <div class="input-section">
+            <textarea id="appIdea" placeholder="Enter your app idea (e.g., 'A simple to-do list app')"></textarea>
+            <button onclick="startSimulation()">Launch Swarm!</button>
+        </div>
+        <div class="simulation" id="simulation">
+            <div class="agents">
+                <div class="agent">
+                    <div class="avatar">🧠</div>
+                    <div class="chat-bubble" id="plannerChat">Hi, I'm the Planner Agent. Ready to break it down!</div>
+                    <div class="progress-bar"><div class="progress-fill" id="plannerProgress"></div></div>
+                </div>
+                <div class="agent">
+                    <div class="avatar">💻</div>
+                    <div class="chat-bubble" id="coderChat">Coder Agent here. Let's write some code!</div>
+                    <div class="progress-bar"><div class="progress-fill" id="coderProgress"></div></div>
+                </div>
+                <div class="agent">
+                    <div class="avatar">🔍</div>
+                    <div class="chat-bubble" id="reviewerChat">Reviewer Agent reporting in. Time to test!</div>
+                    <div class="progress-bar"><div class="progress-fill" id="reviewerProgress"></div></div>
+                </div>
+            </div>
+            <div class="output" id="output"></div>
+        </div>
+    </div>
+
+    <script>
+        function startSimulation() {
+            const idea = document.getElementById('appIdea').value.trim();
+            if (!idea) {
+                alert('Please enter an app idea!');
+                return;
+            }
+            document.querySelector('.input-section').style.display = 'none';
+            document.getElementById('simulation').style.display = 'flex';
+
+            // Planner Phase
+            setTimeout(() => {
+                document.getElementById('plannerChat').innerText = `Planning: "${idea}". Tasks: 1. Design UI, 2. Implement logic, 3. Add features.`;
+                document.getElementById('plannerChat').style.opacity = '1';
+                document.getElementById('plannerProgress').style.width = '100%';
+            }, 1000);
+
+            // Coder Phase
+            setTimeout(() => {
+                document.getElementById('coderChat').innerText = 'Coding: Writing HTML, CSS, and JS snippets for your app.';
+                document.getElementById('coderChat').style.opacity = '1';
+                document.getElementById('coderProgress').style.width = '100%';
+            }, 3000);
+
+            // Reviewer Phase
+            setTimeout(() => {
+                document.getElementById('reviewerChat').innerText = 'Reviewing: All tests passed! Code is clean and functional.';
+                document.getElementById('reviewerChat').style.opacity = '1';
+                document.getElementById('reviewerProgress').style.width = '100%';
+            }, 5000);
+
+            // Output Phase
+            setTimeout(() => {
+                const code = generateMiniCode(idea);
+                document.getElementById('output').innerHTML = `<h3>Generated Mini App Code:</h3><pre>${code}</pre>`;
+                document.getElementById('output').style.display = 'block';
+            }, 7000);
+        }
+
+        function generateMiniCode(idea) {
+            // Simple logic to generate a mini HTML/JS app based on idea keywords
+            if (idea.toLowerCase().includes('to-do') || idea.toLowerCase().includes('list')) {
+                return `<!DOCTYPE html>
+<html>
+<head>
+    <title>Mini To-Do App</title>
+</head>
+<body>
+    <h1>To-Do List</h1>
+    <input id="task" placeholder="Add a task">
+    <button onclick="addTask()">Add</button>
+    <ul id="list"></ul>
+    <script>
+        function addTask() {
+            const task = document.getElementById('task').value;
+            if (task) {
+                const li = document.createElement('li');
+                li.textContent = task;
+                document.getElementById('list').appendChild(li);
+                document.getElementById('task').value = '';
+            }
+        }
+    </script>
+</body>
+</html>`;
+            } else if (idea.toLowerCase().includes('calculator')) {
+                return `<!DOCTYPE html>
+<html>
+<head>
+    <title>Mini Calculator</title>
+</head>
+<body>
+    <h1>Simple Calculator</h1>
+    <input id="num1" placeholder="Number 1">
+    <input id="num2" placeholder="Number 2">
+    <button onclick="add()">Add</button>
+    <p id="result"></p>
+    <script>
+        function add() {
+            const a = parseFloat(document.getElementById('num1').value);
+            const b = parseFloat(document.getElementById('num2').value);
+            document.getElementById('result').textContent = 'Result: ' + (a + b);
+        }
+    </script>
+</body>
+</html>`;
+            } else {
+                // Default mini app
+                return `<!DOCTYPE html>
+<html>
+<head>
+    <title>Mini App</title>
+</head>
+<body>
+    <h1>Your Idea: ${idea}</h1>
+    <p>This is a placeholder for your app.</p>
+    <script>
+        alert('App generated based on your idea!');
+    </script>
+</body>
+</html>`;
+            }
+        }
+    </script>
+</body>
+</html>

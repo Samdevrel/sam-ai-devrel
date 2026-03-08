@@ -1,0 +1,337 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Wallet</title>
+    <style>
+        /* Modern, minimal UI with gradient background */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .wallet-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .wallet-info div {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .user-message {
+            background: rgba(255, 255, 255, 0.3);
+            text-align: right;
+        }
+
+        .bot-message {
+            background: rgba(255, 255, 255, 0.2);
+            text-align: left;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            background: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        .transaction-history {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .tx-item {
+            margin-bottom: 5px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .chat-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chat Wallet</h1>
+        
+        <div class="wallet-info">
+            <div id="wallet-address">Wallet Address: Not Connected</div>
+            <div id="wallet-balance">Balance: -- ETH</div>
+        </div>
+        
+        <button id="connect-btn">Connect MetaMask</button>
+        
+        <div class="chat-container">
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Type your command, e.g., 'check my balance' or 'send 0.01 ETH to 0x123...'">
+                <button id="send-btn">Send</button>
+            </div>
+        </div>
+        
+        <div class="transaction-history">
+            <h3>Transaction History</h3>
+            <div id="tx-history"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.min.js"></script>
+    <script>
+        // Global variables for ethers.js interactions
+        let provider; // Ethers provider for Sepolia testnet
+        let signer; // Signer for transactions
+        let userAddress; // User's wallet address
+        let txHistory = []; // Local array to store transaction hashes (simplified history)
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Connect button event
+            document.getElementById('connect-btn').addEventListener('click', connectWallet);
+            // Send button event
+            document.getElementById('send-btn').addEventListener('click', handleChatSend);
+            // Allow Enter key to send
+            document.getElementById('chat-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleChatSend();
+            });
+        });
+
+        // Function to connect MetaMask wallet
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Request accounts from MetaMask
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    // Create provider for Sepolia testnet (chainId: 11155111)
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    const network = await provider.getNetwork();
+                    if (network.chainId !== 11155111n) {
+                        alert('Please switch to Sepolia testnet in MetaMask.');
+                        return;
+                    }
+                    signer = await provider.getSigner();
+                    userAddress = await signer.getAddress();
+                    // Update UI
+                    document.getElementById('wallet-address').textContent = `Wallet Address: ${userAddress}`;
+                    // Fetch and display balance
+                    await getBalance();
+                    // Add bot message
+                    addBotMessage('Wallet connected successfully!');
+                } catch (error) {
+                    console.error('Connection failed:', error);
+                    addBotMessage('Failed to connect wallet. Make sure MetaMask is installed.');
+                }
+            } else {
+                alert('MetaMask is not installed. Please install it to use this app.');
+            }
+        }
+
+        // Function to get and display wallet balance
+        async function getBalance() {
+            if (!signer) return;
+            try {
+                const balance = await provider.getBalance(userAddress);
+                const ethBalance = ethers.formatEther(balance);
+                document.getElementById('wallet-balance').textContent = `Balance: ${ethBalance} ETH`;
+            } catch (error) {
+                console.error('Error fetching balance:', error);
+                addBotMessage('Error fetching balance.');
+            }
+        }
+
+        // Function to handle chat send (parse user input)
+        function handleChatSend() {
+            const input = document.getElementById('chat-input').value.trim();
+            if (!input) return;
+            addUserMessage(input);
+            document.getElementById('chat-input').value = '';
+            parseCommand(input.toLowerCase());
+        }
+
+        // Function to parse commands using simple regex/keyword matching
+        function parseCommand(message) {
+            // Check for balance command
+            if (message.includes('balance')) {
+                getBalance();
+                addBotMessage('Balance updated above.');
+            }
+            // Check for send command: e.g., "send 0.01 eth to 0x123..."
+            else if (message.match(/send (\d+\.?\d*) eth to (0x[a-fA-F0-9]{40})/i)) {
+                const match = message.match(/send (\d+\.?\d*) eth to (0x[a-fA-F0-9]{40})/i);
+                const amount = match[1];
+                const toAddress = match[2];
+                sendEth(amount, toAddress);
+            }
+            // Check for history command
+            else if (message.includes('history')) {
+                displayTxHistory();
+                addBotMessage('Transaction history displayed below.');
+            }
+            // Unknown command
+            else {
+                addBotMessage('Sorry, I didn\'t understand that. Try "check my balance", "send X ETH to address", or "show history".');
+            }
+        }
+
+        // Function to send ETH (with confirmation)
+        async function sendEth(amount, toAddress) {
+            if (!signer) {
+                addBotMessage('Please connect your wallet first.');
+                return;
+            }
+            // Confirm transaction
+            if (!confirm(`Send ${amount} ETH to ${toAddress}? This will deduct from your balance.`)) {
+                addBotMessage('Transaction cancelled.');
+                return;
+            }
+            try {
+                const tx = await signer.sendTransaction({
+                    to: toAddress,
+                    value: ethers.parseEther(amount)
+                });
+                addBotMessage(`Transaction sent! Hash: ${tx.hash}`);
+                // Add to local history
+                txHistory.push({ hash: tx.hash, type: 'Sent', amount, to: toAddress, timestamp: new Date().toISOString() });
+                displayTxHistory();
+                // Refresh balance after transaction
+                setTimeout(getBalance, 2000); // Wait a bit for confirmation
+            } catch (error) {
+                console.error('Transaction failed:', error);
+                addBotMessage('Transaction failed. Check console for details.');
+            }
+        }
+
+        // Function to display transaction history (from local array)
+        function displayTxHistory() {
+            const historyDiv = document.getElementById('tx-history');
+            historyDiv.innerHTML = '';
+            if (txHistory.length === 0) {
+                historyDiv.innerHTML = '<p>No transactions yet.</p>';
+            } else {
+                txHistory.forEach(tx => {
+                    const item = document.createElement('div');
+                    item.className = 'tx-item';
+                    item.textContent = `${tx.type} ${tx.amount} ETH to ${tx.to} - Hash: ${tx.hash} (${new Date(tx.timestamp).toLocaleString()})`;
+                    historyDiv.appendChild(item);
+                });
+            }
+        }
+
+        // Helper function to add user message to chat
+        function addUserMessage(text) {
+            const messages = document.getElementById('chat-messages');
+            const msg = document.createElement('div');
+            msg.className = 'message user-message';
+            msg.textContent = text;
+            messages.appendChild(msg);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Helper function to add bot message to chat
+        function addBotMessage(text) {
+            const messages = document.getElementById('chat-messages');
+            const msg = document.createElement('div');
+            msg.className = 'message bot-message';
+            msg.textContent = text;
+            messages.appendChild(msg);
+            messages.scrollTop = messages.scrollHeight;
+        }
+    </script>
+</body>
+</html>
+```
