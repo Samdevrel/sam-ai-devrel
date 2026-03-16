@@ -1,99 +1,170 @@
-# GitHub Contribution Opportunities
-**Scan Date:** March 13, 2026 03:44 UTC  
-**Repos Scanned:** MetaMask/delegation-framework, ethereum/ERCs, scaffold-eth/scaffold-eth-2, openclaw/openclaw
+# GitHub Contribution Opportunities for Sam
+
+**Scan Date:** March 16, 2026, 9:00 AM CET  
+**Target Repos:** MetaMask/delegation-framework, ethereum/ERCs, scaffold-eth/scaffold-eth-2, openclaw/openclaw
 
 ---
 
-## Top Opportunities
+## 🎯 Top 5 High-Impact Opportunities
 
-### 1. **MetaMask/delegation-framework #164** — Gas Estimation Bug (Critical Impact)
-- **Issue:** [Gas estimation producing 20x oversized limits (4.18% efficiency)](https://github.com/MetaMask/delegation-framework/issues/164)
-- **Why It Fits Sam:** 
-  - Real-world EIP-7702 proxy implementation bug affecting AI agents
-  - Performance/gas optimization expertise needed
-  - Direct impact on agent wallet efficiency ($71/month waste per agent)
-  - Analysis of `0x464fc339add314932920d3e060745bd7ea3e92ad` wallet shows only 4.18% gas efficiency
-- **Tech Stack:** Solidity, EIP-7702, gas estimation logic
-- **Impact:** High — directly affects agent deployment costs
-- **Updated:** March 12, 2026
-
----
-
-### 2. **Scaffold-ETH-2 #1236** — Skill Architecture Improvement (Research-Backed)
-- **Issue:** [Improve skill architecture based on SkillsBench findings](https://github.com/scaffold-eth/scaffold-eth-2/issues/1236)
-- **Why It Fits Sam:**
-  - AI agent skill optimization (directly relevant to Sam's AI agent focus)
-  - Research-backed improvements from SkillsBench paper (86 real-world tasks, 7,308 trajectories)
-  - Involves splitting large skills (solidity-security: 533 lines, defi-protocol-templates: 443 lines)
-  - Adding executable templates alongside SKILL.md files
-  - Composition guidance for agents (2-3 skills sweet spot beats 4+)
-- **Tech Stack:** Agent architecture, Solidity templates, .sol contracts, deploy scripts
-- **Impact:** Medium-High — improves agent effectiveness on Scaffold-ETH-2 builds
-- **Updated:** March 12, 2026
+### 1. **Scaffold-ETH 2: Skill Architecture Improvements** ⭐⭐⭐
+- **Repo:** scaffold-eth/scaffold-eth-2
+- **Issue:** [#1236 - Improve skill architecture based on SkillsBench findings](https://github.com/scaffold-eth/scaffold-eth-2/issues/1236)
+- **Type:** Architecture / AI Agent Tooling
+- **Why it fits Sam:**
+  - Directly related to AI agent effectiveness in building Ethereum dApps
+  - Research-backed (SkillsBench paper) with actionable recommendations
+  - Touches the exact intersection of AI agents + Ethereum development
+  - Opportunity to shape how LLMs build dApps in SE-2
+  - Skills are similar to ethskills framework Sam knows
+- **Key findings from issue:**
+  - Compact skills (+17.1pp) and detailed skills (+18.8pp) outperform comprehensive ones (-2.9pp)
+  - 2-3 skills per task is optimal; 4+ skills degrades performance
+  - Executable resources (scripts/templates) matter more than markdown-only docs
+  - Current SE-2 has two massive skills (533 and 443 lines) that likely hurt agent performance
+- **Contribution path:**
+  - Split large skills into focused 150-250 line modules
+  - Add template .sol contracts and deploy scripts alongside SKILL.md
+  - Add composition guidance for which 2-3 skills pair well
+  - Create verification checklists for each skill
+  - Test improvements against baseline LLM prompts
 
 ---
 
-### 3. **MetaMask/delegation-framework #32** — ERC-7746 Middleware Hooks Integration
-- **Issue:** [Use ERC-7746 for middleware hooks](https://github.com/MetaMask/delegation-framework/issues/32)
-- **Why It Fits Sam:**
-  - Standards integration opportunity (ERC-7746 for interoperable middleware hooks)
-  - Framework extensibility improvement
-  - Aligns hooks implementation with emerging industry standard
-  - Similar to Ironblocks firewall patterns
-- **Tech Stack:** Solidity, ERC standards, middleware hooks
-- **Impact:** Medium — improves interoperability and standards compliance
-- **Updated:** May 8, 2025
+### 2. **MetaMask Delegation Framework: Gas Estimation Bug** ⭐⭐⭐
+- **Repo:** MetaMask/delegation-framework
+- **Issue:** [#164 - Gas estimation producing 20x oversized limits (4.18% efficiency)](https://github.com/MetaMask/delegation-framework/issues/164)
+- **Type:** Performance / ERC-7702 Implementation
+- **Why it fits Sam:**
+  - Real production issue affecting AI agents using delegation framework
+  - ERC-7702 proxy implementation (cutting-edge EIP)
+  - Quantified impact: $71.35/month waste per agent, 95.82% gas waste
+  - Directly relevant to agent wallet economics
+  - Ties into broader ERC-7710/7702 ecosystem Sam cares about
+- **Context:**
+  - Analyzed wallet: `0x464fc339add314932920d3e060745bd7ea3e92ad`
+  - 258 failed transactions, all reverted (not OOG)
+  - Gas limits ~20x higher than actual usage
+  - Expected efficiency: 70-90%, actual: 4.18%
+- **Contribution path:**
+  - Deep dive into gas estimation logic in delegation framework
+  - Compare with standard EIP-7702 proxy implementations
+  - Propose fix to bring efficiency to 70-90% range
+  - Document findings for other delegation framework users
 
 ---
 
-### 4. **Scaffold-ETH-2 #1198** — Address Component Error Handling Fix
-- **Issue:** [Address component crashes on invalid address input](https://github.com/scaffold-eth/scaffold-eth-2/issues/1198)
-- **Why It Fits Sam:**
-  - Frontend error handling bug affecting UX
-  - Clean solution already proposed in issue
-  - Involves viem library (getAddress() exception handling)
-  - Low-hanging fruit with high UX impact
-- **Tech Stack:** Next.js, TypeScript, viem, React
-- **Impact:** Medium — improves developer/user experience
-- **Updated:** November 7, 2025
+### 3. **MetaMask Delegation Framework: ERC-7746 Middleware Hooks** ⭐⭐
+- **Repo:** MetaMask/delegation-framework
+- **Issue:** [#32 - Use ERC-7746 for middleware hooks](https://github.com/MetaMask/delegation-framework/issues/32)
+- **Type:** Standards Adoption / Interoperability
+- **Why it fits Sam:**
+  - Cross-ERC work (7746 + delegation framework)
+  - Aligns multiple protocols (Ironblocks firewalls, delegation enforcers)
+  - Opportunity to contribute ideas to ERC-7746 standard
+  - Fits "building blocks" / DeFi legos mental model
+  - Industry-wide problem (firewalls, hooks, middleware)
+- **Context:**
+  - Delegation framework currently uses custom hooks extensively
+  - ERC-7746 exists to standardize middleware hooks across industry
+  - Contributor suggests aligning delegation framework with 7746
+- **Contribution path:**
+  - Read ERC-7746 spec and compare with current delegation framework hook patterns
+  - Identify gaps or improvements needed in ERC-7746 to support delegation use cases
+  - Contribute feedback/PRs to ethereum/ERCs for ERC-7746
+  - Propose migration path for delegation framework to adopt 7746
 
 ---
 
-### 5. **Scaffold-ETH-2 #1206** — Test Coverage Improvement for YourContract
-- **Issue:** [Improve test coverage and isolation for YourContract](https://github.com/scaffold-eth/scaffold-eth-2/issues/1206)
-- **Why It Fits Sam:**
-  - Testing best practices (loadFixture pattern)
-  - Missing coverage for withdraw() and premium functions
-  - Good starting point for Scaffold-ETH-2 contribution
-  - Demonstrates Hardhat testing expertise
-- **Tech Stack:** Hardhat, TypeScript, Solidity testing
-- **Impact:** Low-Medium — improves template quality
-- **Updated:** November 29, 2025
+### 4. **Scaffold-ETH 2: bytecode prefix bug in decodeTxData** ⭐⭐
+- **Repo:** scaffold-eth/scaffold-eth-2
+- **Issue:** [#1246 - Bug: decodeTxData.ts checks wrong bytecode prefix](https://github.com/scaffold-eth/scaffold-eth-2/issues/1246)
+- **Type:** Bug Fix / Solidity Deep Knowledge
+- **Why it fits Sam:**
+  - Small, surgical fix with clear diagnostic
+  - Requires understanding of Solidity contract creation bytecode
+  - Affects block explorer UX in SE-2 (contract creation txs labeled "Unknown")
+  - Quick win to build SE-2 contributor reputation
+  - Good "first real contribution" before tackling #1236
+- **Bug details:**
+  - Current check: `!tx.input.startsWith("0x60e06040")`
+  - Correct check: `!tx.input.startsWith("0x6080604")` (standard Solidity init code)
+  - Result: Contract creation transactions mislabeled in block explorer
+- **Contribution path:**
+  - Fix one-line typo in `packages/nextjs/utils/scaffold-eth/decodeTxData.ts`
+  - Add test case for contract creation detection
+  - PR with clear before/after explanation
 
 ---
 
-## Documentation Gaps Identified
+### 5. **OpenClaw: Skills inaccessible in sandbox rw mode** ⭐
+- **Repo:** openclaw/openclaw
+- **Issue:** [#48011 - Non-workspace skills are inaccessible to the agent when sandbox is in workspaceAccess: "rw" mode](https://github.com/openclaw/openclaw/issues/48011)
+- **Type:** Bug / Agent Tooling Infrastructure
+- **Why it fits Sam:**
+  - Affects how AI agents access skills in sandboxed environments
+  - Direct OpenClaw contribution (platform Francesco uses)
+  - Ties into skill-based agent work (#1236 above)
+  - Regression from 2026.3.13 affecting bundled/managed skills
+- **Bug details:**
+  - In `workspaceAccess: "rw"` mode, agents can't read system-level skills
+  - Error: "Path escapes sandbox root" for `/usr/lib/.../feishu-doc/SKILL.md`
+  - Works in `workspaceAccess: "none"` mode (auto-syncs skills to workspace)
+  - Missing visibility mechanism in rw mode
+- **Contribution path:**
+  - Review path resolver logic in rw mode
+  - Propose either: (1) auto-sync skills like in "none" mode, or (2) bind mount system skills
+  - Test fix with staff agent + feishu-doc skill
+  - PR with regression test
 
-### MetaMask/delegation-framework
-- No open "good first issue" labels found
-- Gas estimation logic needs documentation (related to #164)
-- ERC-7746 integration guidance needed (#32)
+---
+
+## 📋 Other Notable Issues (Lower Priority)
 
 ### ethereum/ERCs
-- No open issues found for ERC-7710, ERC-7702, or ERC-8004 in search
-- Possible opportunity: Create implementation examples/tutorials for these ERCs
+- **ERC-7710** and **ERC-8004** both exist as Draft standards
+  - ERC-7710: Smart Contract Delegation (requires ERC-1271, ERC-7579)
+  - ERC-8004: Trustless Agents (identity, reputation, validation registries)
+  - **Opportunity:** Review standards, propose improvements, write reference implementations
+  - Both are AI-agent-focused ERCs — perfect for Sam's expertise
 
-### Scaffold-ETH-2
-- Skills architecture documentation needs updating per #1236
-- Frontend component error handling patterns (#1198)
-
-### openclaw/openclaw
-- Multiple system-level issues (polling, session management, performance)
-- Most issues are internal bugs rather than contribution opportunities for external developers
+### Documentation Gaps
+- **MetaMask/delegation-framework:** No "good first issue" labels, but issues #164 and #32 are both approachable
+- **scaffold-eth/scaffold-eth-2:** Issue #1236 explicitly calls for "executable resources" (templates/scripts) alongside skills
+- **ethereum/ERCs:** Multiple build/tooling issues (#1572, #1541, #729) — less relevant to Sam's focus
 
 ---
 
-## Notes
-- **Sam's Profile:** Ethereum developer with expertise in ERC standards (7710/7702/8004), AI agents, gas optimization, and DeFi protocols
-- **Best Starting Point:** #164 (delegation-framework gas bug) or #1236 (SE-2 skill architecture) — both high-impact and align with AI agent + Ethereum focus
-- **Quick Win:** #1198 (address component fix) — clear solution, good first PR to Scaffold-ETH-2
+## 🎯 Recommended Action Plan
+
+**Week 1: Quick Win**
+- Fix SE-2 bytecode prefix bug (#1246) → build contributor trust
+
+**Week 2-3: High Impact**
+- Deep dive on SE-2 skill architecture (#1236)
+  - Read SkillsBench paper
+  - Audit current SE-2 skills
+  - Propose split/refactor plan
+  - Add executable templates
+
+**Week 4+: Standards Work**
+- Investigate MetaMask delegation framework gas estimation (#164)
+- Contribute to ERC-7746 / ERC-7710 / ERC-8004 discussions
+- Connect delegation framework work to broader ERC ecosystem
+
+---
+
+## 📊 Scan Summary
+
+| Repo | Open Issues | Good First Issue | AI/Agent Related | Sam-Relevant |
+|------|-------------|------------------|------------------|--------------|
+| MetaMask/delegation-framework | 3 | 0 | 3 (100%) | 2 high-priority |
+| ethereum/ERCs | 11 scanned | 0 | 2 standards (7710, 8004) | 2 standards to review |
+| scaffold-eth/scaffold-eth-2 | 10 | 0 | 1 major (#1236) | 2 issues |
+| openclaw/openclaw | 30 | 0 | 1 (#48011) | 1 issue |
+
+**Key insight:** No repos use "good first issue" labels, but the skill architecture issue (#1236) and gas estimation bug (#164) are both high-leverage contributions that fit Sam's expertise perfectly.
+
+---
+
+*Next scan scheduled: Check these repos weekly for new issues related to AI agents, ERC-7710/7702/8004, and skill/tooling improvements.*
