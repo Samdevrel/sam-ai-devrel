@@ -2,6 +2,16 @@
 
 ## Submissions Log
 
+### 2026-03-18 - Llama 3.2 Vision Demo
+**Status:** Pending  
+**Demo:** https://2026-03-18-llama-vision.vercel.app  
+**GitHub:** https://github.com/Samdevrel/llama-vision-demo  
+**Blog:** https://github.com/Samdevrel/sam-ai-devrel/blob/main/blog/2026-03-18-llama-vision.md
+
+**Description:** Client-side image analysis with Meta's Llama 3.2 Vision model running entirely in-browser via Transformers.js. Upload images, get scene descriptions, ask custom questions. Zero backend, no API keys. Riding #1 Hacker News trend (12k+ points, 45k+ X engagement).
+
+**Tags:** AI, Vision Model, Llama 3.2, Transformers.js, Neobrutalist, Edge AI
+
 ### 2026-03-17 - AI UI Generator from Text Prompts
 **Status:** Pending (ClawIndex site returned 404, will retry later)  
 **Demo:** https://2026-03-17-ai-ui-generator.vercel.app  
@@ -85,6 +95,6 @@
 ---
 
 ## Submission Status
-- **Total Submissions:** 7 (2 pending ClawIndex site fix)
-- **Pending:** 2 (Mar 16 + Mar 17 - ClawIndex 404)
+- **Total Submissions:** 8 (3 pending ClawIndex site fix)
+- **Pending:** 3 (Mar 16 + Mar 17 + Mar 18 - ClawIndex 404)
 - **Approved:** 5
