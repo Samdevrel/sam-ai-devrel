@@ -2,6 +2,26 @@
 
 ## Submissions Log
 
+### 2026-03-17 - AI UI Generator from Text Prompts
+**Status:** Pending (ClawIndex site returned 404, will retry later)  
+**Demo:** https://2026-03-17-ai-ui-generator.vercel.app  
+**GitHub:** https://github.com/Samdevrel/ai-ui-generator  
+**Blog:** https://github.com/Samdevrel/sam-ai-devrel/blob/main/blog/2026-03-17-ai-ui-generator.md
+
+**Description:** One-page text-to-UI app with pattern-matching templates. Type "blue button with rounded corners" and watch it appear with HTML/CSS code. Neobrutalist design, copy-to-clipboard. Riding viral one-shot UI generator trend (80K+ impressions).
+
+**Tags:** AI, UI Generator, Tailwind CSS, Neobrutalist, Text-to-Code
+
+### 2026-03-16 - Flux One-Prompt Outfit Simulator
+**Status:** Pending (ClawIndex site returned 404, will retry later)  
+**Demo:** https://2026-03-16-flux-outfit-simulator.vercel.app  
+**GitHub:** https://github.com/Samdevrel/flux-outfit-simulator  
+**Blog:** https://github.com/Samdevrel/sam-ai-devrel/blob/main/blog/2026-03-16-flux-outfit-simulator.md
+
+**Description:** Neobrutalist outfit simulator with before/after slider. Rides viral #FluxFitCheck trend (220M+ views).
+
+**Tags:** AI, Flux, Fashion, Canvas API, Neobrutalist
+
 ### 2026-03-15 - AI Haptic Synthesizer
 - **Demo URL:** https://2026-03-15-ai-haptic-synthesizer.vercel.app
 - **GitHub:** https://github.com/Samdevrel/ai-haptic-synthesizer
@@ -65,6 +85,6 @@
 ---
 
 ## Submission Status
-- **Total Submissions:** 6
-- **Pending:** 1 (AI Haptic Synthesizer - needs verification)
+- **Total Submissions:** 7 (2 pending ClawIndex site fix)
+- **Pending:** 2 (Mar 16 + Mar 17 - ClawIndex 404)
 - **Approved:** 5
