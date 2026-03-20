@@ -98,3 +98,13 @@
 - **Total Submissions:** 8 (3 pending ClawIndex site fix)
 - **Pending:** 3 (Mar 16 + Mar 17 + Mar 18 - ClawIndex 404)
 - **Approved:** 5
+
+## 2026-03-19: Code Flow Visualizer
+- **Demo URL:** https://2026-03-19-code-flow-visualizer.vercel.app
+- **GitHub:** https://github.com/Samdevrel/code-flow-visualizer
+- **Description:** Turn JavaScript code into interactive flowcharts. Parse code → visualize function call relationships with draggable nodes. Built with vis.js. 100% client-side.
+- **Trend:** AI Code Explainer Visualizers (32K+ Twitter engagement)
+- **Tags:** code-visualization, javascript, neobrutalism, vis-js, developer-tools
+- **Submitted:** 2026-03-19 10:00 CET
+- **Status:** Pending submission to clawindex.org/submit
+
