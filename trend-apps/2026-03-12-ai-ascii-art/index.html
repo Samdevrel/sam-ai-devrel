@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Art Converter</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            border: 5px solid #ff0000;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #111;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+            color: #00ff00;
+        }
+        .drop-zone {
+            border: 3px dashed #fff;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #222;
+            cursor: pointer;
+        }
+        .drop-zone.dragover {
+            background-color: #444;
+        }
+        #file-input {
+            display: none;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            margin-bottom: 5px;
+        }
+        input[type="range"] {
+            width: 100px;
+        }
+        button {
+            background-color: #ff0000;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #cc0000;
+        }
+        #ascii-output {
+            white-space: pre;
+            font-size: 12px;
+            line-height: 1;
+            background-color: #000;
+            border: 2px solid #00ff00;
+            padding: 10px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .sample-images {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .sample-img {
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+            cursor: pointer;
+            border: 2px solid #fff;
+        }
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            .control-group {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ASCII Art Converter</h1>
+        
+        <div class="sample-images">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" class="sample-img" alt="Sample 1" onclick="loadSample(this)">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" class="sample-img" alt="Sample 2" onclick="loadSample(this)">
+            <!-- Placeholder images; in real app, use actual base64 or URLs -->
+        </div>
+        
+        <div class="drop-zone" id="drop-zone">
+            Drag & drop an image here or <label for="file-input">click to upload</label>
+        </div>
+        <input type="file" id="file-input" accept="image/*">
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="density">Density (Font Size):</label>
+                <input type="range" id="density" min="8" max="24" value="12">
+            </div>
+            <div class="control-group">
+                <label for="color-mode">Color Mode:</label>
+                <button id="color-toggle">Monochrome</button>
+            </div>
+            <div class="control-group">
+                <label>Animation:</label>
+                <button id="wave-btn">Wave</button>
+                <button id="glitch-btn">Glitch</button>
+                <button id="matrix-btn">Matrix Rain</button>
+                <button id="stop-btn">Stop</button>
+            </div>
+        </div>
+        
+        <div id="ascii-output"></div>
+        
+        <div>
+            <button id="export-text">Export as Text</button>
+            <button id="export-gif">Export as GIF (Not Implemented)</button>
+        </div>
+    </div>
+
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script>
+        const asciiChars = '@%#*+=-:. '; // Darkest to lightest, added space for lightest
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const asciiOutput = document.getElementById('ascii-output');
+        const densityInput = document.getElementById('density');
+        const colorToggle = document.getElementById('color-toggle');
+        const waveBtn = document.getElementById('wave-btn');
+        const glitchBtn = document.getElementById('glitch-btn');
+        const matrixBtn = document.getElementById('matrix-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const exportTextBtn = document.getElementById('export-text');
+        const exportGifBtn = document.getElementById('export-gif');
+
+        let imageData = null;
+        let asciiArt = '';
+        let isColor = false;
+        let animationInterval = null;
+        let originalAscii = '';
+
+        // Drag & drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                loadImage(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                loadImage(e.target.files[0]);
+            }
+        });
+
+        function loadSample(img) {
+            // Placeholder: In real app, load actual sample images
+            alert('Sample image loaded (placeholder)');
+        }
+
+        function loadImage(file) {
+            const img = new Image();
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                convertToAscii();
+            };
+            img.src = URL.createObjectURL(file);
+        }
+
+        function convertToAscii() {
+            if (!imageData) return;
+            const { width, height, data } = imageData;
+            const cols = Math.floor(width / 10); // Approximate char width
+            const rows = Math.floor(height / 10);
+            asciiArt = '';
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    const pixelIndex = (y * 10 * width + x * 10) * 4;
+                    const r = data[pixelIndex];
+                    const g = data[pixelIndex + 1];
+                    const b = data[pixelIndex + 2];
+                    const brightness = (r + g + b) / 3;
+                    const charIndex = Math.floor((brightness / 255) * (asciiChars.length - 1));
+                    const char = asciiChars[charIndex];
+                    if (isColor) {
+                        asciiArt += `<span style="color: rgb(${r},${g},${b})">${char}</span>`;
+                    } else {
+                        asciiArt += char;
+                    }
+                }
+                asciiArt += '\n';
+            }
+            originalAscii = asciiArt;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            asciiOutput.innerHTML = asciiArt;
+            asciiOutput.style.fontSize = densityInput.value + 'px';
+        }
+
+        densityInput.addEventListener('input', updateDisplay);
+
+        colorToggle.addEventListener('click', () => {
+            isColor = !isColor;
+            colorToggle.textContent = isColor ? 'Color' : 'Monochrome';
+            convertToAscii();
+        });
+
+        // Animations
+        waveBtn.addEventListener('click', () => {
+            stopAnimation();
+            animationInterval = setInterval(() => {
+                const lines = originalAscii.split('\n');
+                const time = Date.now() * 0.005;
+                asciiArt = lines.map((line, i) => {
+                    const offset = Math.sin(time + i * 0.1) * 5;
+                    return line.slice(Math.max(0, offset)) + line.slice(0, Math.max(0, offset));
+                }).join('\n');
+                updateDisplay();
+            }, 100);
+        });
+
+        glitchBtn.addEventListener('click', () => {
+            stopAnimation();
+            animationInterval = setInterval(() => {
+                asciiArt = originalAscii.split('').map(char => Math.random() > 0.95 ? asciiChars[Math.floor(Math.random() * asciiChars.length)] : char).join('');
+                updateDisplay();
+            }, 200);
+        });
+
+        matrixBtn.addEventListener('click', () => {
+            stopAnimation();
+            const lines = originalAscii.split('\n');
+            let drops = new Array(lines[0].length).fill(0);
+            animationInterval = setInterval(() => {
+                asciiArt = lines.map((line, i) => {
+                    return line.split('').map((char, j) => {
+                        if (drops[j] > i) return asciiChars[Math.floor(Math.random() * asciiChars.length)];
+                        return char;
+                    }).join('');
+                }).join('\n');
+                drops = drops.map(d => d > lines.length ? 0 : d + Math.random() > 0.9 ? 1 : 0);
+                updateDisplay();
+            }, 100);
+        });
+
+        stopBtn.addEventListener('click', stopAnimation);
+
+        function stopAnimation() {
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                animationInterval = null;
+                asciiArt = originalAscii;
+                updateDisplay();
+            }
+        }
+
+        exportTextBtn.addEventListener('click', () => {
+            const blob = new Blob([asciiArt.replace(/<[^>]*>/g, '')], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ascii_art.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        exportGifBtn.addEventListener('click', () => {
+            alert('Animated GIF export not implemented in vanilla JS. Use external library for production.');
+        });
+    </script>
+</body>
+</html>

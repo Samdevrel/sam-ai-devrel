@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Flow Visualizer</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #FF6B6B;
+            color: #000;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: #FFE66D;
+            border: 10px solid #000;
+            box-shadow: 15px 15px 0 #4ECDC4;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-align: center;
+            background: #FF8E53;
+            border: 5px solid #000;
+            padding: 10px;
+            box-shadow: 10px 10px 0 #A8E6CF;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            border: 8px solid #000;
+            background: #FFFFFF;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            padding: 10px;
+            box-shadow: 10px 10px 0 #DDA0DD;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #FF6B6B;
+            color: #000;
+            border: 5px solid #000;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            box-shadow: 8px 8px 0 #4ECDC4;
+            margin: 5px;
+            transition: all 0.1s;
+        }
+        button:hover {
+            box-shadow: 5px 5px 0 #4ECDC4;
+            transform: translate(3px, 3px);
+        }
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        #flowchart {
+            width: 100%;
+            height: 600px;
+            border: 10px solid #000;
+            background: #FFFFFF;
+            box-shadow: 15px 15px 0 #A8E6CF;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Code Flow Visualizer</h1>
+        <textarea id="codeInput" placeholder="Paste your JavaScript code here..."></textarea>
+        <div class="examples">
+            <button onclick="loadExample(1)">Example 1: Simple Functions</button>
+            <button onclick="loadExample(2)">Example 2: Class with Methods</button>
+            <button onclick="loadExample(3)">Example 3: Complex Calls</button>
+        </div>
+        <button onclick="generateFlowchart()">Generate Flowchart</button>
+        <div id="flowchart"></div>
+    </div>
+    <div class="footer">
+        Built with vis.js. 100% client-side. Neobrutalist design.
+    </div>
+
+    <script src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
+    <script>
+        const examples = {
+            1: `function greet(name) {
+    console.log('Hello ' + name);
+}
+
+function main() {
+    greet('World');
+    process();
+}
+
+function process() {
+    console.log('Processing...');
+}`,
+
+            2: `class Calculator {
+    add(a, b) {
+        return a + b;
+    }
+
+    multiply(a, b) {
+        return this.add(a, 0) * b; // Calls add
+    }
+}
+
+function useCalculator() {
+    const calc = new Calculator();
+    calc.multiply(2, 3);
+}`,
+
+            3: `function fetchData() {
+    return 'data';
+}
+
+function processData() {
+    const data = fetchData();
+    display(data);
+}
+
+function display(data) {
+    console.log(data);
+}
+
+function main() {
+    processData();
+    cleanup();
+}
+
+function cleanup() {
+    console.log('Cleaned up');
+}`
+        };
+
+        function loadExample(num) {
+            document.getElementById('codeInput').value = examples[num];
+        }
+
+        function generateFlowchart() {
+            const code = document.getElementById('codeInput').value;
+            const parsed = parseCode(code);
+            renderFlowchart(parsed);
+        }
+
+        function parseCode(code) {
+            const functions = {};
+            const calls = {};
+
+            // Simple regex for function definitions (assuming JS)
+            const funcRegex = /(?:function\s+(\w+)|const\s+(\w+)\s*=\s*\([^)]*\)\s*=>?|class\s+(\w+))/g;
+            let match;
+            while ((match = funcRegex.exec(code)) !== null) {
+                const name = match[1] || match[2] || match[3];
+                if (name) {
+                    functions[name] = true;
+                    calls[name] = [];
+                }
+            }
+
+            // Find calls within function bodies (rudimentary)
+            Object.keys(functions).forEach(func => {
+                const funcRegex = new RegExp(`function\\s+${func}\\s*\\([^)]*\\)\\s*\\{([^}]+)\\}|const\\s+${func}\\s*=\\s*\\([^)]*\\)\\s*=>\\s*\\{([^}]+)\\}|class\\s+${func}\\s*\\{([^}]+)\\}`, 'g');
+                const bodyMatch = funcRegex.exec(code);
+                if (bodyMatch) {
+                    const body = bodyMatch[1] || bodyMatch[2] || bodyMatch[3];
+                    Object.keys(functions).forEach(otherFunc => {
+                        if (otherFunc !== func && body.includes(otherFunc + '(')) {
+                            calls[func].push(otherFunc);
+                        }
+                    });
+                }
+            });
+
+            return { functions: Object.keys(functions), calls };
+        }
+
+        function renderFlowchart(data) {
+            const container = document.getElementById('flowchart');
+            const nodes = new vis.DataSet(data.functions.map((f, i) => ({ id: i, label: f })));
+            const edges = new vis.DataSet([]);
+            let edgeId = 0;
+
+            data.functions.forEach((from, fromId) => {
+                data.calls[from].forEach(to => {
+                    const toId = data.functions.indexOf(to);
+                    if (toId !== -1) {
+                        edges.add({ id: edgeId++, from: fromId, to: toId, arrows: 'to' });
+                    }
+                });
+            });
+
+            const options = {
+                nodes: {
+                    shape: 'box',
+                    font: { size: 14, color: '#000' },
+                    color: { background: '#FFE66D', border: '#000' },
+                    borderWidth: 3,
+                    shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10, x: 5, y: 5 }
+                },
+                edges: {
+                    color: { color: '#FF6B6B', highlight: '#FF8E53' },
+                    width: 2,
+                    shadow: { enabled: true, color: 'rgba(0,0,0,0.3)', size: 5, x: 3, y: 3 }
+                },
+                physics: { enabled: true }
+            };
+
+            new vis.Network(container, { nodes, edges }, options);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI UI Generator from Text Prompts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neon-pink': '#FF0080',
+                        'neon-blue': '#00FFFF',
+                        'neon-green': '#00FF00',
+                        'neon-yellow': '#FFFF00',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+        }
+        .neobrutalist {
+            box-shadow: 8px 8px 0px #000;
+            border: 4px solid #000;
+        }
+        .generated-component {
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body class="bg-white text-black p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl font-bold mb-4 text-center neobrutalist bg-neon-yellow p-4 inline-block">AI UI Generator</h1>
+        <p class="text-center mb-8">Describe a UI component in text, and watch it come to life! No real AI, just clever templates.</p>
+
+        <div class="mb-8">
+            <input id="promptInput" type="text" placeholder="e.g., blue button with rounded corners" class="w-full p-4 text-lg border-4 border-black bg-white neobrutalist">
+            <button id="generateBtn" class="mt-4 bg-neon-pink text-black px-8 py-4 text-lg font-bold neobrutalist hover:bg-neon-blue transition">Generate Component</button>
+        </div>
+
+        <div id="componentDisplay" class="mb-8 p-4 bg-gray-100 neobrutalist generated-component">
+            <p class="text-center">Your generated component will appear here.</p>
+        </div>
+
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Generated Code</h2>
+            <pre id="codeViewer" class="bg-gray-800 text-green-400 p-4 overflow-x-auto neobrutalist"></pre>
+            <button id="copyBtn" class="mt-4 bg-neon-green text-black px-6 py-3 font-bold neobrutalist hover:bg-neon-yellow transition">Copy to Clipboard</button>
+        </div>
+
+        <div>
+            <h2 class="text-2xl font-bold mb-4">Example Prompts</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button class="example-prompt bg-neon-blue text-black p-4 font-bold neobrutalist hover:bg-neon-pink transition" data-prompt="blue button with rounded corners">Blue button with rounded corners</button>
+                <button class="example-prompt bg-neon-pink text-black p-4 font-bold neobrutalist hover:bg-neon-blue transition" data-prompt="pricing card with gradient">Pricing card with gradient</button>
+                <button class="example-prompt bg-neon-yellow text-black p-4 font-bold neobrutalist hover:bg-neon-green transition" data-prompt="red alert box with shadow">Red alert box with shadow</button>
+                <button class="example-prompt bg-neon-green text-black p-4 font-bold neobrutalist hover:bg-neon-pink transition" data-prompt="simple form input field">Simple form input field</button>
+                <button class="example-prompt bg-neon-blue text-black p-4 font-bold neobrutalist hover:bg-neon-yellow transition" data-prompt="green success message">Green success message</button>
+                <button class="example-prompt bg-neon-pink text-black p-4 font-bold neobrutalist hover:bg-neon-green transition" data-prompt="minimal navigation bar">Minimal navigation bar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const promptInput = document.getElementById('promptInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const componentDisplay = document.getElementById('componentDisplay');
+        const codeViewer = document.getElementById('codeViewer');
+        const copyBtn = document.getElementById('copyBtn');
+        const examplePrompts = document.querySelectorAll('.example-prompt');
+
+        // Templates based on pattern matching
+        const templates = {
+            button: (prompt) => {
+                let color = 'bg-blue-500';
+                let shape = 'rounded';
+                if (prompt.includes('blue')) color = 'bg-blue-500';
+                if (prompt.includes('red')) color = 'bg-red-500';
+                if (prompt.includes('green')) color = 'bg-green-500';
+                if (prompt.includes('rounded')) shape = 'rounded-lg';
+                if (prompt.includes('square')) shape = 'rounded-none';
+                const html = `<button class="${color} text-white px-4 py-2 ${shape} hover:opacity-75">Click Me</button>`;
+                const css = `/* Inline styles or Tailwind classes as above */`;
+                return { html, css };
+            },
+            card: (prompt) => {
+                let bg = 'bg-white';
+                if (prompt.includes('gradient')) bg = 'bg-gradient-to-r from-purple-400 via-pink-500 to-red-500';
+                const html = `<div class="${bg} p-6 rounded-lg shadow-lg"><h3 class="text-xl font-bold">Title</h3><p>Description here.</p><button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Buy Now</button></div>`;
+                const css = `/* Tailwind handles the gradient and shadow */`;
+                return { html, css };
+            },
+            alert: (prompt) => {
+                let color = 'bg-red-500';
+                if (prompt.includes('red')) color = 'bg-red-500';
+                if (prompt.includes('green')) color = 'bg-green-500';
+                const html = `<div class="${color} text-white p-4 rounded shadow-lg">Alert message!</div>`;
+                const css = `/* Shadow via Tailwind */`;
+                return { html, css };
+            },
+            input: (prompt) => {
+                const html = `<input type="text" placeholder="Enter text" class="border-2 border-gray-300 p-2 rounded w-full">`;
+                const css = `/* Basic input styling */`;
+                return { html, css };
+            },
+            message: (prompt) => {
+                let color = 'bg-green-500';
+                if (prompt.includes('green')) color = 'bg-green-500';
+                if (prompt.includes('red')) color = 'bg-red-500';
+                const html = `<div class="${color} text-white p-4 rounded">Success!</div>`;
+                const css = `/* Simple message box */`;
+                return { html, css };
+            },
+            nav: (prompt) => {
+                const html = `<nav class="bg-gray-800 text-white p-4"><ul class="flex space-x-4"><li><a href="#" class="hover:underline">Home</a></li><li><a href="#" class="hover:underline">About</a></li><li><a href="#" class="hover:underline">Contact</a></li></ul></nav>`;
+                const css = `/* Minimal nav with Tailwind */`;
+                return { html, css };
+            }
+        };
+
+        function generateComponent(prompt) {
+            const lowerPrompt = prompt.toLowerCase();
+            let component = { html: '<p>Component not recognized. Try something like "blue button".</p>', css: '/* No CSS */' };
+            if (lowerPrompt.includes('button')) component = templates.button(lowerPrompt);
+            else if (lowerPrompt.includes('card') || lowerPrompt.includes('pricing')) component = templates.card(lowerPrompt);
+            else if (lowerPrompt.includes('alert') || lowerPrompt.includes('box')) component = templates.alert(lowerPrompt);
+            else if (lowerPrompt.includes('input') || lowerPrompt.includes('field')) component = templates.input(lowerPrompt);
+            else if (lowerPrompt.includes('message')) component = templates.message(lowerPrompt);
+            else if (lowerPrompt.includes('nav') || lowerPrompt.includes('navigation')) component = templates.nav(lowerPrompt);
+
+            componentDisplay.innerHTML = component.html;
+            codeViewer.textContent = `HTML:\n${component.html}\n\nCSS:\n${component.css}`;
+        }
+
+        generateBtn.addEventListener('click', () => {
+            const prompt = promptInput.value;
+            if (prompt) generateComponent(prompt);
+        });
+
+        examplePrompts.forEach(btn => {
+            btn.addEventListener('click', () => {
+                promptInput.value = btn.dataset.prompt;
+                generateComponent(btn.dataset.prompt);
+            });
+        });
+
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(codeViewer.textContent).then(() => {
+                alert('Code copied to clipboard!');
+            });
+        });
+    </script>
+</body>
+</html>

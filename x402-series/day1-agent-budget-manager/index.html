@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Budget Manager | x402 + ERC-7710</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #FCBF49;
+            --success: #2EC4B6;
+            --danger: #E63946;
+            --bg: #F7F7F7;
+            --text: #1A1A2E;
+            --border: 4px solid #1A1A2E;
+            --shadow: 8px 8px 0px #1A1A2E;
+        }
+
+        body {
+            font-family: 'Space Mono', 'Courier New', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--primary);
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent);
+            border: 3px solid var(--text);
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: white;
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: transform 0.1s;
+        }
+
+        .card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 10px 10px 0px #1A1A2E;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .agent-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--secondary);
+            border: 2px solid var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .budget-bar {
+            height: 24px;
+            background: #E0E0E0;
+            border: 2px solid var(--text);
+            margin: 12px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .budget-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .budget-fill.safe { background: var(--success); }
+        .budget-fill.warning { background: var(--accent); }
+        .budget-fill.danger { background: var(--danger); }
+
+        .budget-label {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        .stats span {
+            background: var(--bg);
+            padding: 4px 8px;
+            border: 2px solid var(--text);
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: 3px solid var(--text);
+            padding: 8px 16px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s;
+            margin-top: 12px;
+        }
+
+        .btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0px var(--text);
+        }
+
+        .btn.danger {
+            background: var(--danger);
+        }
+
+        .btn.success {
+            background: var(--success);
+        }
+
+        .section-title {
+            background: var(--secondary);
+            color: white;
+            border: var(--border);
+            padding: 12px 20px;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .add-agent {
+            background: var(--accent);
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .add-agent h3 {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 3px solid var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .alerts {
+            background: white;
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 32px;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 2px solid var(--text);
+        }
+
+        .alert-item.warning {
+            background: #FFF3CD;
+        }
+
+        .alert-item.danger {
+            background: #F8D7DA;
+        }
+
+        .alert-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+        }
+
+        .alert-dot.warning { background: var(--accent); }
+        .alert-dot.danger { background: var(--danger); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .total-stats {
+            background: var(--secondary);
+            color: white;
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        footer {
+            text-align: center;
+            padding: 24px;
+            border-top: var(--border);
+            margin-top: 40px;
+        }
+
+        footer a {
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .erc-badge {
+            background: var(--success);
+            color: white;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            border: 2px solid var(--text);
+            margin-left: 8px;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+            .total-stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Agent Budget Manager</h1>
+            <p>Give your agents allowances, not your keys</p>
+            <span class="badge">x402 + ERC-7710</span>
+        </header>
+
+        <div class="total-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalAgents">4</div>
+                <div class="stat-label">Active Agents</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalBudget">$2,500</div>
+                <div class="stat-label">Total Budget</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalSpent">$1,847</div>
+                <div class="stat-label">Total Spent</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalRemaining">$653</div>
+                <div class="stat-label">Remaining</div>
+            </div>
+        </div>
+
+        <div class="alerts" id="alertsSection">
+            <h3 class="section-title">⚠️ Active Alerts</h3>
+            <div class="alert-item danger">
+                <div class="alert-dot danger"></div>
+                <div><strong>Research Agent</strong> has exceeded 90% of budget ($450/$500)</div>
+            </div>
+            <div class="alert-item warning">
+                <div class="alert-dot warning"></div>
+                <div><strong>Trading Agent</strong> approaching limit at 82% ($820/$1000)</div>
+            </div>
+        </div>
+
+        <div class="add-agent">
+            <h3>➕ Create New Delegation</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Agent Name</label>
+                    <input type="text" id="agentName" placeholder="e.g., Research Agent">
+                </div>
+                <div class="form-group">
+                    <label>Budget Limit (USD)</label>
+                    <input type="number" id="budgetLimit" placeholder="500">
+                </div>
+                <div class="form-group">
+                    <label>Period</label>
+                    <select id="budgetPeriod">
+                        <option value="daily">Daily</option>
+                        <option value="weekly" selected>Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="total">Total (no reset)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Wallet Address</label>
+                    <input type="text" id="walletAddress" placeholder="0x...">
+                </div>
+                <div class="form-group">
+                    <label>Alert Threshold</label>
+                    <select id="alertThreshold">
+                        <option value="70">70%</option>
+                        <option value="80" selected>80%</option>
+                        <option value="90">90%</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn success" onclick="createDelegation()">Create ERC-7710 Delegation</button>
+        </div>
+
+        <h3 class="section-title">📊 Active Delegations</h3>
+        
+        <div class="grid" id="agentsGrid">
+            <!-- Agent cards will be inserted here -->
+        </div>
+
+        <footer>
+            <p>Built by <a href="https://github.com/Samdevrel">@samdevrel</a> 🔮</p>
+            <p style="margin-top: 8px; font-size: 0.85rem;">
+                Part of the <strong>x402 Series</strong> — Empowering AI agents with scoped payments
+            </p>
+            <p style="margin-top: 8px;">
+                <span class="erc-badge">ERC-7710</span>
+                <span class="erc-badge">x402</span>
+                <span class="erc-badge">ERC-7715</span>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const agents = [
+            {
+                id: 1,
+                name: "Research Agent",
+                icon: "R",
+                budget: 500,
+                spent: 450,
+                period: "weekly",
+                wallet: "0x1a2b...3c4d",
+                alert: 80,
+                status: "danger"
+            },
+            {
+                id: 2,
+                name: "Trading Agent",
+                icon: "T",
+                budget: 1000,
+                spent: 820,
+                period: "weekly",
+                wallet: "0x5e6f...7g8h",
+                alert: 80,
+                status: "warning"
+            },
+            {
+                id: 3,
+                name: "Content Agent",
+                icon: "C",
+                budget: 300,
+                spent: 127,
+                period: "daily",
+                wallet: "0x9i0j...1k2l",
+                alert: 80,
+                status: "safe"
+            },
+            {
+                id: 4,
+                name: "Data Agent",
+                icon: "D",
+                budget: 700,
+                spent: 450,
+                period: "monthly",
+                wallet: "0x3m4n...5o6p",
+                alert: 80,
+                status: "safe"
+            }
+        ];
+
+        function getStatus(spent, budget, threshold) {
+            const percent = (spent / budget) * 100;
+            if (percent >= 90) return 'danger';
+            if (percent >= threshold) return 'warning';
+            return 'safe';
+        }
+
+        function renderAgents() {
+            const grid = document.getElementById('agentsGrid');
+            grid.innerHTML = agents.map(agent => {
+                const percent = Math.round((agent.spent / agent.budget) * 100);
+                const status = getStatus(agent.spent, agent.budget, agent.alert);
+                const remaining = agent.budget - agent.spent;
+                
+                return `
+                    <div class="card">
+                        <h3>
+                            <div class="agent-icon">${agent.icon}</div>
+                            ${agent.name}
+                        </h3>
+                        <div class="budget-bar">
+                            <div class="budget-fill ${status}" style="width: ${percent}%"></div>
+                            <span class="budget-label">${percent}%</span>
+                        </div>
+                        <div class="stats">
+                            <span>Spent: $${agent.spent}</span>
+                            <span>Limit: $${agent.budget}</span>
+                            <span>Left: $${remaining}</span>
+                        </div>
+                        <div style="margin-top: 12px; font-size: 0.8rem;">
+                            <strong>Period:</strong> ${agent.period} | 
+                            <strong>Wallet:</strong> ${agent.wallet}
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn" onclick="modifyBudget(${agent.id})">Modify</button>
+                            <button class="btn danger" onclick="revokeDelegation(${agent.id})">Revoke</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function createDelegation() {
+            const name = document.getElementById('agentName').value;
+            const budget = parseInt(document.getElementById('budgetLimit').value);
+            const period = document.getElementById('budgetPeriod').value;
+            const wallet = document.getElementById('walletAddress').value || '0xnew...addr';
+            const alert = parseInt(document.getElementById('alertThreshold').value);
+
+            if (!name || !budget) {
+                alert('Please fill in agent name and budget');
+                return;
+            }
+
+            agents.push({
+                id: agents.length + 1,
+                name: name,
+                icon: name.charAt(0).toUpperCase(),
+                budget: budget,
+                spent: 0,
+                period: period,
+                wallet: wallet.slice(0, 6) + '...' + wallet.slice(-4),
+                alert: alert,
+                status: 'safe'
+            });
+
+            renderAgents();
+            updateTotals();
+            
+            // Clear form
+            document.getElementById('agentName').value = '';
+            document.getElementById('budgetLimit').value = '';
+            document.getElementById('walletAddress').value = '';
+
+            showNotification(`✅ Delegation created for ${name}`);
+        }
+
+        function modifyBudget(id) {
+            const agent = agents.find(a => a.id === id);
+            const newBudget = prompt(`Enter new budget for ${agent.name}:`, agent.budget);
+            if (newBudget && !isNaN(newBudget)) {
+                agent.budget = parseInt(newBudget);
+                renderAgents();
+                updateTotals();
+                showNotification(`✅ Budget updated for ${agent.name}`);
+            }
+        }
+
+        function revokeDelegation(id) {
+            const agent = agents.find(a => a.id === id);
+            if (confirm(`Revoke delegation for ${agent.name}?`)) {
+                const index = agents.findIndex(a => a.id === id);
+                agents.splice(index, 1);
+                renderAgents();
+                updateTotals();
+                showNotification(`🚫 Delegation revoked for ${agent.name}`);
+            }
+        }
+
+        function updateTotals() {
+            const totalBudget = agents.reduce((sum, a) => sum + a.budget, 0);
+            const totalSpent = agents.reduce((sum, a) => sum + a.spent, 0);
+            
+            document.getElementById('totalAgents').textContent = agents.length;
+            document.getElementById('totalBudget').textContent = `$${totalBudget.toLocaleString()}`;
+            document.getElementById('totalSpent').textContent = `$${totalSpent.toLocaleString()}`;
+            document.getElementById('totalRemaining').textContent = `$${(totalBudget - totalSpent).toLocaleString()}`;
+        }
+
+        function showNotification(message) {
+            // Simple notification - could enhance with toast library
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #1A1A2E;
+                color: white;
+                padding: 16px 24px;
+                border: 3px solid #FCBF49;
+                font-family: inherit;
+                z-index: 1000;
+            `;
+            div.textContent = message;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        // Simulate real-time spending updates
+        setInterval(() => {
+            agents.forEach(agent => {
+                if (agent.spent < agent.budget && Math.random() > 0.7) {
+                    agent.spent = Math.min(agent.budget, agent.spent + Math.floor(Math.random() * 10));
+                }
+            });
+            renderAgents();
+            updateTotals();
+        }, 5000);
+
+        // Initial render
+        renderAgents();
+    </script>
+</body>
+</html>

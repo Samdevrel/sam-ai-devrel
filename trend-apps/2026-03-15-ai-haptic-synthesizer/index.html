@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Haptic Synthesizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            font-size: 2rem;
+            color: #ff0000;
+            border: 8px solid #000000;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .section {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+            border: 8px solid #000000;
+            padding: 15px;
+            background-color: #ffffff;
+        }
+        button {
+            background-color: #00ff00;
+            color: #000000;
+            border: 4px solid #000000;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0000ff;
+            color: #ffffff;
+        }
+        input[type="file"] {
+            border: 4px solid #000000;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        canvas {
+            border: 8px solid #000000;
+            width: 100%;
+            height: 150px;
+            background-color: #ffffff;
+        }
+        #feel-it {
+            background-color: #ff0000;
+            color: #ffffff;
+            font-size: 1.5rem;
+            padding: 15px 30px;
+        }
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #000000;
+            color: #ffffff;
+            padding: 5px 10px;
+            border-radius: 0;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 1;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            border: 4px solid #000000;
+        }
+        #preview {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #000000;
+        }
+        .unsupported {
+            color: #ff0000;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Haptic Synthesizer</h1>
+    <div class="section">
+        <p>Select a preset or upload your own short video:</p>
+        <button id="water" class="tooltip" data-tooltip="Water: Generates calming, flowing vibrations from liquid sounds.">Water</button>
+        <button id="fire" class="tooltip" data-tooltip="Fire: Creates intense, crackling patterns from flame audio.">Fire</button>
+        <button id="cat" class="tooltip" data-tooltip="Cat Purring: Produces rhythmic, soothing haptics mimicking purr frequencies.">Cat Purring</button>
+        <input type="file" id="upload" accept="video/*" class="tooltip" data-tooltip="Upload a short video (under 30s) to analyze its audio for custom haptics.">
+    </div>
+    <div class="section">
+        <video id="video" controls muted></video>
+        <p id="preview">Haptic Pattern Preview: <span id="pattern-text">No pattern yet</span></p>
+    </div>
+    <div class="section">
+        <canvas id="waveform"></canvas>
+        <button id="feel-it" class="tooltip" data-tooltip="Triggers vibration on your device matching the video's audio texture. Only works on phones with vibration support!">Feel It</button>
+        <p id="support-check" class="unsupported"></p>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('waveform');
+            const ctx = canvas.getContext('2d');
+            const feelItBtn = document.getElementById('feel-it');
+            const patternText = document.getElementById('pattern-text');
+            const supportCheck = document.getElementById('support-check');
+
+            let audioContext, analyser, dataArray, bufferLength;
+            let vibrationPattern = [];
+
+            // Check vibration support
+            if (!('vibrate' in navigator)) {
+                supportCheck.textContent = 'Vibration not supported on this device. This app requires a vibrating phone.';
+                feelItBtn.disabled = true;
+            }
+
+            // Preset videos (using placeholder URLs; replace with actual short clips)
+            const presets = {
+                water: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4', // Placeholder
+                fire: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4', // Placeholder
+                cat: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_5mb.mp4' // Placeholder
+            };
+
+            // Preset buttons
+            document.getElementById('water').addEventListener('click', () => loadVideo(presets.water));
+            document.getElementById('fire').addEventListener('click', () => loadVideo(presets.fire));
+            document.getElementById('cat').addEventListener('click', () => loadVideo(presets.cat));
+
+            // Upload
+            document.getElementById('upload').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    loadVideo(url);
+                }
+            });
+
+            function loadVideo(src) {
+                video.src = src;
+                video.load();
+                video.onloadeddata = () => {
+                    if (!audioContext) {
+                        initAudio();
+                    }
+                    video.play();
+                };
+            }
+
+            function initAudio() {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+
+                const source = audioContext.createMediaElementSource(video);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+
+                draw();
+            }
+
+            function draw() {
+                requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#000000';
+                ctx.beginPath();
+
+                const sliceWidth = canvas.width / bufferLength;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    const v = dataArray[i] / 128.0;
+                    const y = v * canvas.height / 2;
+
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+
+                    x += sliceWidth;
+                }
+
+                ctx.stroke();
+
+                // Generate haptic pattern based on frequency and amplitude
+                vibrationPattern = [];
+                let avgAmp = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    avgAmp += dataArray[i];
+                }
+                avgAmp /= bufferLength;
+
+                const baseDuration = Math.max(50, avgAmp * 2); // Map amplitude to duration
+                const freqPeaks = dataArray.slice(0, 10).filter(v => v > 100); // Low freq peaks
+
+                vibrationPattern = freqPeaks.map(() => [baseDuration, baseDuration]); // Simple pattern: vibrate-pause
+                patternText.textContent = `Pattern: ${vibrationPattern.flat().join(', ')}`;
+            }
+
+            feelItBtn.addEventListener('click', () => {
+                if (vibrationPattern.length > 0) {
+                    navigator.vibrate(vibrationPattern.flat());
+                }
+            });
+        });
+    </script>
+</body>
+</html>

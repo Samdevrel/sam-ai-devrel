@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>x402 API Gateway | Pay-per-Call for AI Agents</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #FCBF49;
+            --success: #2EC4B6;
+            --danger: #E63946;
+            --bg: #F7F7F7;
+            --text: #1A1A2E;
+            --border: 4px solid #1A1A2E;
+            --shadow: 8px 8px 0px #1A1A2E;
+        }
+
+        body {
+            font-family: 'Space Mono', 'Courier New', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--primary);
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent);
+            border: 3px solid var(--text);
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: white;
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: transform 0.1s;
+        }
+
+        .card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 10px 10px 0px #1A1A2E;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .code-block {
+            background: #1A1A2E;
+            color: #0F0;
+            padding: 12px;
+            border: 2px solid var(--text);
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+
+        .endpoint {
+            background: var(--secondary);
+            color: white;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border: 2px solid var(--text);
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .demo-box {
+            background: white;
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .demo-box h3 {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 3px solid var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: 3px solid var(--text);
+            padding: 8px 16px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s;
+            margin-top: 12px;
+        }
+
+        .btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0px var(--text);
+        }
+
+        .response-box {
+            background: #F0F0F0;
+            border: 2px solid var(--text);
+            padding: 12px;
+            margin-top: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            min-height: 100px;
+        }
+
+        .section-title {
+            background: var(--secondary);
+            color: white;
+            border: var(--border);
+            padding: 12px 20px;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .info-box {
+            background: var(--accent);
+            border: 2px solid var(--text);
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 24px;
+            border-top: var(--border);
+            margin-top: 40px;
+        }
+
+        footer a {
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔌 x402 API Gateway</h1>
+            <p>Pay-per-call APIs for autonomous AI agents</p>
+            <span class="badge">x402 + ERC-7710</span>
+        </header>
+
+        <div class="info-box">
+            <h3>What this is</h3>
+            <p>An x402 gateway lets agents make API calls and pay for them automatically. No pre-funding wallets. No private keys. Just set a budget, and the agent pays what it uses.</p>
+        </div>
+
+        <div class="demo-box">
+            <h3>🔄 Simulate an x402 Payment</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Agent</label>
+                    <select id="agent">
+                        <option value="Research Agent">Research Agent</option>
+                        <option value="Trading Agent">Trading Agent</option>
+                        <option value="Content Agent">Content Agent</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>API Endpoint</label>
+                    <select id="endpoint">
+                        <option value="simulated-analysis">simulated-analysis ($2.50)</option>
+                        <option value="image-generation">image-generation ($5.00)</option>
+                        <option value="data-query">data-query ($1.00)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Budget ($)</label>
+                    <input type="number" id="budget" value="100">
+                </div>
+            </div>
+            <button class="btn" onclick="simulatePayment()">Request API Call</button>
+            <div class="response-box" id="response"></div>
+        </div>
+
+        <h3 class="section-title">How x402 Works</h3>
+
+        <div class="grid">
+            <div class="card">
+                <h3><div class="step-number">1</div>Agent Requests API</h3>
+                <p>Agent makes request to x402 gateway:</p>
+                <div class="code-block">GET https://gateway.x402.io/api/v1/analysis</div>
+            </div>
+
+            <div class="card">
+                <h3><div class="step-number">2</div>Gateway Checks Budget</h3>
+                <p>Gateway queries delegated wallet via ERC-7710 to check remaining budget:</p>
+                <div class="code-block">GET /api/v1/budget/{agent_id}
+Response: { "remaining": 45.50 }</div>
+            </div>
+
+            <div class="card">
+                <h3><div class="step-number">3</div>Gateway Returns 402</h3>
+                <p>Gateway responds with price and requires payment:</p>
+                <div class="code-block">HTTP/1.1 402 Payment Required
+Content-Type: application/json
+Price: 2.50
+
+{ "price": 2.50, "currency": "USD" }</div>
+            </div>
+
+            <div class="card">
+                <h3><div class="step-number">4</div>Agent Pays via Delegated Wallet</h3>
+                <p>Agent pays from its delegated wallet using x402 payment flow:</p>
+                <div class="code-block">POST /api/v1/pay
+{ "amount": 2.50, "currency": "USD" }
+
+Response: { "tx_hash": "0xabc123..." }</div>
+            </div>
+
+            <div class="card">
+                <h3><div class="step-number">5</div>Gateway Processes Request</h3>
+                <p>Once paid, gateway forwards request to actual API:</p>
+                <div class="code-block">GET https://api.provider.com/v1/analysis
+Authorization: Bearer <actual_api_key>
+X-x402-Tx-Hash: 0xabc123...</div>
+            </div>
+
+            <div class="card">
+                <h3><div class="step-number">6</div>Gateway Updates Budget</h3>
+                <p>Delegated wallet deducts payment. Budget updated:</p>
+                <div class="code-block">GET /api/v1/budget/{agent_id}
+Response: { "remaining": 43.00 }</div>
+            </div>
+        </div>
+
+        <h3 class="section-title">Why Agents Need This</h3>
+
+        <div class="card" style="margin-bottom: 24px;">
+            <h3>The Problem</h3>
+            <p>AI agents making thousands of API calls need a payment system that:</p>
+            <ul style="margin-left: 24px; margin-top: 8px;">
+                <li>Isn't catastrophic if they have full access</li>
+                <li>Provides visibility into what they're spending</li>
+                <li>Can scale to thousands of concurrent agents</li>
+                <li>Works without pre-funding every wallet</li>
+            </ul>
+        </div>
+
+        <div class="card" style="margin-bottom: 24px;">
+            <h3>The Solution: x402 + ERC-7710</h3>
+            <p>x402 is the <strong>HTTP 402 Payment Required</strong> protocol. When an agent hits a paid API:</p>
+            <ol style="margin-left: 24px; margin-top: 8px;">
+                <li>Server returns 402 with price</li>
+                <li>Agent pays via delegated wallet (ERC-7710)</li>
+                <li>Payment settles, budget updates</li>
+                <li>Server processes request</li>
+            </ol>
+            <p style="margin-top: 12px;"><strong>Result:</strong> Agents get department budgets, not credit cards.</p>
+        </div>
+
+        <footer>
+            <p>Built by <a href="https://github.com/Samdevrel">@samdevrel</a> 🔮</p>
+            <p style="margin-top: 8px; font-size: 0.85rem;">
+                Part of the <strong>x402 Series</strong> — Empowering AI agents with scoped payments
+            </p>
+            <p style="margin-top: 8px;">
+                <span class="badge">x402</span>
+                <span class="badge">ERC-7710</span>
+                <span class="badge">ERC-7715</span>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        function simulatePayment() {
+            const agent = document.getElementById('agent').value;
+            const endpoint = document.getElementById('endpoint').value;
+            const budget = parseFloat(document.getElementById('budget').value);
+            
+            const endpoints = {
+                'simulated-analysis': { price: 2.50, desc: 'Research analysis' },
+                'image-generation': { price: 5.00, desc: 'Image generation' },
+                'data-query': { price: 1.00, desc: 'Database query' }
+            };
+            
+            const endpointInfo = endpoints[endpoint];
+            const responseBox = document.getElementById('response');
+            
+            let response = `
+<div style="margin-bottom: 8px;"><strong>Request:</strong> ${agent} → ${endpointInfo.desc}</div>
+<div style="margin-bottom: 8px;"><strong>Price:</strong> $${endpointInfo.price.toFixed(2)}</div>
+<div style="margin-bottom: 8px;"><strong>Checking budget...</strong></div>
+            `;
+            
+            responseBox.innerHTML = response;
+            
+            setTimeout(() => {
+                const remaining = Math.max(0, budget - endpointInfo.price);
+                response += `
+<div style="margin-bottom: 8px;"><strong>Budget check:</strong> $${budget.toFixed(2)} available</div>
+<div style="margin-bottom: 8px;"><strong>Status:</strong> HTTP 402 Payment Required</div>
+<div style="margin-bottom: 8px;"><strong>Paying via delegated wallet...</strong></div>
+<div style="margin-bottom: 8px;"><strong>Transaction:</strong> 0x${Math.random().toString(16).substr(2, 40)}</div>
+<div style="margin-bottom: 8px;"><strong>Budget updated:</strong> $${remaining.toFixed(2)} remaining</div>
+<div style="margin-bottom: 8px;"><strong style="color: #2EC4B6;">✓ Request processed successfully</strong></div>
+                `;
+                responseBox.innerHTML = response;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

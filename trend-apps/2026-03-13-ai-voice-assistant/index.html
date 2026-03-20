@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Assistant Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 600px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .instructions {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .mic-button {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            transition: all 0.3s ease;
+            margin: 20px auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .mic-button:hover {
+            transform: scale(1.05);
+        }
+        .mic-button.recording {
+            animation: pulse 1s infinite;
+            background: #ff6b6b;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .waveform {
+            height: 50px;
+            width: 100%;
+            margin: 20px 0;
+            display: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .waveform canvas {
+            width: 100%;
+            height: 100%;
+        }
+        .transcription {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+        .response {
+            margin-top: 20px;
+            font-style: italic;
+            opacity: 0.8;
+        }
+        .disclaimer {
+            font-size: 0.9em;
+            margin-top: 20px;
+            opacity: 0.7;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            padding-top: 15px;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .container {
+                padding: 20px;
+            }
+            .mic-button {
+                width: 80px;
+                height: 80px;
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Voice Assistant Demo</h1>
+        <p class="instructions">
+            Click the microphone button to start recording your voice. Speak clearly, then click again to stop. The app will simulate transcription and an AI response. Ensure your browser allows microphone access.
+        </p>
+        <button id="micButton" class="mic-button">🎤</button>
+        <div class="waveform" id="waveform">
+            <canvas id="waveformCanvas"></canvas>
+        </div>
+        <div class="transcription" id="transcription">Transcription will appear here...</div>
+        <div class="response" id="response"></div>
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This is a demo/prototype inspired by Gemini 2.0 Flash. It uses mock simulations and does not connect to real AI services. For educational purposes only.
+        </div>
+    </div>
+
+    <script>
+        const micButton = document.getElementById('micButton');
+        const waveform = document.getElementById('waveform');
+        const canvas = document.getElementById('waveformCanvas');
+        const transcriptionDiv = document.getElementById('transcription');
+        const responseDiv = document.getElementById('response');
+
+        let isRecording = false;
+        let audioContext;
+        let analyser;
+        let dataArray;
+        let animationId;
+        let mediaRecorder;
+        let audioChunks = [];
+
+        micButton.addEventListener('click', async () => {
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioContext.createAnalyser();
+                    const source = audioContext.createMediaStreamSource(stream);
+                    source.connect(analyser);
+                    analyser.fftSize = 256;
+                    dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+                    mediaRecorder.onstop = () => {
+                        // Mock transcription
+                        transcriptionDiv.textContent = "Hello, how can I assist you today?";
+                        // Mock AI response
+                        setTimeout(() => {
+                            responseDiv.textContent = "AI Response: Sure, I'd be happy to help! What do you need?";
+                        }, 1000);
+                    };
+                    mediaRecorder.start();
+                    isRecording = true;
+                    micButton.classList.add('recording');
+                    waveform.style.display = 'block';
+                    drawWaveform();
+                } catch (error) {
+                    alert('Microphone access denied or not available.');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                micButton.classList.remove('recording');
+                waveform.style.display = 'none';
+                cancelAnimationFrame(animationId);
+                // Stop all tracks
+                if (audioContext) {
+                    audioContext.close();
+                }
+            }
+        });
+
+        function drawWaveform() {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            analyser.getByteFrequencyData(dataArray);
+            ctx.fillStyle = '#4ecdc4';
+            for (let i = 0; i < dataArray.length; i++) {
+                const barHeight = (dataArray[i] / 255) * canvas.height;
+                ctx.fillRect(i * 4, canvas.height - barHeight, 3, barHeight);
+            }
+            animationId = requestAnimationFrame(drawWaveform);
+        }
+    </script>
+</body>
+</html>

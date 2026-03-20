@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>o1 vs GPT-4o Benchmark Showdown</title>
+    <style>
+        body {
+            font-family: 'Arial Black', sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #222;
+            border: 5px solid #ff0;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #f00;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #0f0;
+            text-shadow: 2px 2px #f00;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.2em;
+            color: #ff0;
+            margin-bottom: 20px;
+        }
+        .toggle {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #f00;
+            color: #000;
+            border: 3px solid #ff0;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #ff0;
+            color: #f00;
+        }
+        .chart {
+            margin: 20px 0;
+            height: 400px;
+            position: relative;
+        }
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        .bar {
+            transition: height 1s ease-in-out;
+        }
+        .label {
+            font-size: 1em;
+            fill: #fff;
+            text-anchor: middle;
+        }
+        .value {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .facts {
+            margin-top: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .fact-card {
+            background-color: #333;
+            border: 3px solid #0f0;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 300px;
+            box-shadow: 0 0 10px #0f0;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px #0f0; }
+            50% { box-shadow: 0 0 20px #0f0; }
+            100% { box-shadow: 0 0 10px #0f0; }
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .facts {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>o1 vs GPT-4o Benchmark Showdown</h1>
+        <p class="subtitle">The Reasoning Revolution: Crunching Numbers on AI Smarts!</p>
+        <div class="toggle">
+            <button id="toggleBtn" onclick="toggleView()">Switch to GPT-4o View</button>
+        </div>
+        <div class="chart">
+            <svg id="benchmarkChart">
+                <g id="bars"></g>
+            </svg>
+        </div>
+        <div class="facts">
+            <div class="fact-card">
+                <h3>Reasoning Powerhouse</h3>
+                <p>o1-preview uses advanced chain-of-thought reasoning, solving complex math problems step-by-step, unlike traditional models.</p>
+            </div>
+            <div class="fact-card">
+                <h3>Code Master</h3>
+                <p>On HumanEval, o1-preview nails 92% accuracy, thanks to its iterative problem-solving approach.</p>
+            </div>
+            <div class="fact-card">
+                <h3>Knowledge Guru</h3>
+                <p>MMLU scores show o1's broad knowledge base, with 88% on general knowledge tasks.</p>
+            </div>
+            <div class="fact-card">
+                <h3>Science Whiz</h3>
+                <p>GPQA results highlight o1's prowess in scientific reasoning, scoring 78% on tough science questions.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const data = {
+            o1: { AIME: 83, HumanEval: 92, MMLU: 88, GPQA: 78 },
+            gpt4o: { AIME: 13, HumanEval: 90, MMLU: 87, GPQA: 53 }
+        };
+        let currentView = 'o1';
+        const benchmarks = ['AIME', 'HumanEval', 'MMLU', 'GPQA'];
+        const colors = { o1: '#0f0', gpt4o: '#00f' };
+        const svg = document.getElementById('benchmarkChart');
+        const barsGroup = document.getElementById('bars');
+        const width = 800;
+        const height = 400;
+        const barWidth = width / benchmarks.length * 0.8;
+        const margin = 20;
+
+        function drawChart(view) {
+            barsGroup.innerHTML = '';
+            benchmarks.forEach((bench, i) => {
+                const x = i * (width / benchmarks.length) + margin;
+                const y = height - (data[view][bench] * 3.5);
+                const barHeight = data[view][bench] * 3.5;
+
+                const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                bar.setAttribute('x', x);
+                bar.setAttribute('y', height);
+                bar.setAttribute('width', barWidth);
+                bar.setAttribute('height', 0);
+                bar.setAttribute('fill', colors[view]);
+                bar.setAttribute('class', 'bar');
+                bar.style.animation = 'grow 1s ease-out forwards';
+                bar.style.animationDelay = `${i * 0.2}s`;
+
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', x + barWidth / 2);
+                label.setAttribute('y', height - 10);
+                label.setAttribute('class', 'label');
+                label.textContent = bench;
+
+                const value = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                value.setAttribute('x', x + barWidth / 2);
+                value.setAttribute('y', y - 10);
+                value.setAttribute('class', 'value');
+                value.setAttribute('fill', '#fff');
+                value.textContent = `${data[view][bench]}%`;
+
+                barsGroup.appendChild(bar);
+                barsGroup.appendChild(label);
+                barsGroup.appendChild(value);
+
+                setTimeout(() => {
+                    bar.setAttribute('y', y);
+                    bar.setAttribute('height', barHeight);
+                }, i * 200);
+            });
+        }
+
+        function toggleView() {
+            currentView = currentView === 'o1' ? 'gpt4o' : 'o1';
+            document.getElementById('toggleBtn').textContent = `Switch to ${currentView === 'o1' ? 'GPT-4o' : 'o1'} View`;
+            drawChart(currentView);
+        }
+
+        // Initial draw
+        drawChart(currentView);
+
+        // CSS animation for bars
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes grow {
+                from { height: 0; y: ${height}; }
+                to { height: var(--bar-height); y: var(--bar-y); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
