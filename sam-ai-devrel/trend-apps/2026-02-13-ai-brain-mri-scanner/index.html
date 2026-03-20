@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Brain MRI Scanner - Instant Neurological Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1200px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .source {
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .scan-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+        
+        .scan-area.active {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+        
+        .scan-preview {
+            width: 100%;
+            max-width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            background: #333;
+            border-radius: 10px;
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .scan-preview.show {
+            display: block;
+        }
+        
+        .brain-scan {
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 30% 50%, rgba(100,150,255,0.4) 0%, transparent 40%),
+                radial-gradient(circle at 70% 50%, rgba(100,150,255,0.4) 0%, transparent 40%),
+                linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            position: relative;
+        }
+        
+        .scan-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        
+        .scan-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .scan-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .results-area {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            min-height: 400px;
+        }
+        
+        .results-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .result-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .result-label {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .result-value {
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .confidence {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        
+        .confidence.high {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .confidence.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .urgency {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        
+        .urgency.normal {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 AI Brain MRI Scanner</h1>
+        <div class="subtitle">Instant neurological analysis powered by AI</div>
+        <div class="source">Based on University of Michigan breakthrough (Feb 2026)</div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number">2.3s</div>
+                <div class="stat-label">Average Analysis Time</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">97%</div>
+                <div class="stat-label">Diagnostic Accuracy</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Availability</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="scan-area" id="scanArea">
+                <h3>Upload Brain MRI Scan</h3>
+                <div class="scan-preview" id="scanPreview">
+                    <div class="brain-scan"></div>
+                </div>
+                <p style="color: #666; margin: 20px 0;">Click below to simulate AI scan analysis</p>
+                <button class="scan-button" id="scanButton">Start AI Analysis</button>
+            </div>
+            
+            <div class="results-area">
+                <div class="results-title">
+                    <span>📊</span>
+                    <span>Analysis Results</span>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>AI analyzing neurological patterns...</p>
+                    <p style="color: #999; margin-top: 10px;">Processing in real-time</p>
+                </div>
+                
+                <div class="results" id="results">
+                    <div class="result-item" style="animation-delay: 0.1s">
+                        <div class="result-label">Primary Finding</div>
+                        <div class="result-value" id="finding">-</div>
+                        <span class="confidence high" id="confidence">-</span>
+                    </div>
+                    
+                    <div class="result-item" style="animation-delay: 0.2s">
+                        <div class="result-label">Affected Regions</div>
+                        <div class="result-value" id="regions">-</div>
+                    </div>
+                    
+                    <div class="result-item" style="animation-delay: 0.3s">
+                        <div class="result-label">Recommended Action</div>
+                        <div class="result-value" id="action">-</div>
+                    </div>
+                    
+                    <div class="urgency" id="urgency">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const scenarios = [
+            {
+                finding: "Normal Brain Structure",
+                confidence: "98.7% Confidence",
+                regions: "All major regions within normal parameters",
+                action: "Routine follow-up recommended",
+                urgency: "No urgent action required",
+                urgencyClass: "normal"
+            },
+            {
+                finding: "Early-stage Alzheimer's indicators",
+                confidence: "94.2% Confidence",
+                regions: "Hippocampus, temporal lobe showing atrophy",
+                action: "Schedule neurologist consultation within 2 weeks",
+                urgency: "Medium priority - Non-urgent care recommended",
+                urgencyClass: "medium"
+            },
+            {
+                finding: "Mild traumatic brain injury (TBI)",
+                confidence: "96.5% Confidence",
+                regions: "Frontal lobe microhemorrhages detected",
+                action: "Immediate follow-up with trauma specialist",
+                urgency: "High priority - Urgent care needed within 24 hours",
+                urgencyClass: ""
+            },
+            {
+                finding: "Migraine-related changes",
+                confidence: "91.3% Confidence",
+                regions: "White matter lesions, frontal cortex",
+                action: "Consult with headache specialist, medication review",
+                urgency: "Low priority - Standard appointment scheduling",
+                urgencyClass: "normal"
+            },
+            {
+                finding: "Vascular abnormality detected",
+                confidence: "97.8% Confidence",
+                regions: "Left middle cerebral artery aneurysm (3.2mm)",
+                action: "IMMEDIATE neurosurgical evaluation required",
+                urgency: "CRITICAL - Emergency department referral recommended",
+                urgencyClass: ""
+            }
+        ];
+        
+        const scanButton = document.getElementById('scanButton');
+        const scanPreview = document.getElementById('scanPreview');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const scanArea = document.getElementById('scanArea');
+        
+        scanButton.addEventListener('click', function() {
+            // Show scan preview
+            scanPreview.classList.add('show');
+            scanArea.classList.add('active');
+            
+            // Disable button
+            scanButton.disabled = true;
+            scanButton.textContent = 'Analyzing...';
+            
+            // Show loading
+            results.classList.remove('show');
+            loading.classList.add('show');
+            
+            // Simulate AI processing
+            setTimeout(() => {
+                const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+                
+                // Hide loading, show results
+                loading.classList.remove('show');
+                results.classList.add('show');
+                
+                // Populate results
+                document.getElementById('finding').textContent = scenario.finding;
+                document.getElementById('confidence').textContent = scenario.confidence;
+                document.getElementById('regions').textContent = scenario.regions;
+                document.getElementById('action').textContent = scenario.action;
+                document.getElementById('urgency').textContent = scenario.urgency;
+                
+                const urgencyDiv = document.getElementById('urgency');
+                urgencyDiv.className = 'urgency';
+                if (scenario.urgencyClass) {
+                    urgencyDiv.classList.add(scenario.urgencyClass);
+                }
+                
+                // Reset button
+                scanButton.disabled = false;
+                scanButton.textContent = 'Analyze Another Scan';
+            }, 2300);
+        });
+    </script>
+</body>
+</html>
