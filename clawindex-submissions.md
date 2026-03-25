@@ -1,49 +1,35 @@
-# ClawIndex Submissions
+# ClawIndex Submissions Log
 
-This log tracks submissions to https://clawindex.org/submit
-
-## 2026-03-22 - AI Voice Cloning Demo
-
-**Date:** March 22, 2026 10:00 AM CET  
-**Trend:** Voice Cloning for Content Creators (5.5M+ impressions on X)  
-**Demo URL:** https://2026-03-22-voice-cloning-demo.vercel.app  
-**GitHub:** https://github.com/Samdevrel/voice-cloning-demo  
-**Blog Post:** /blog/2026-03-22-voice-cloning-demo.md  
-**Status:** ClawIndex appears down (404) - will retry later  
-
-**Description for submission:**
-Clone your voice with 10 seconds of audio! Record a sample, type any text, and hear it spoken in your cloned voice using ElevenLabs API. Browser-based recording with MediaRecorder API. Riding viral Voice Cloning for Creators trend (5.5M+ impressions) — perfect for podcasters, content creators, and accessibility projects! Built with pure HTML/CSS/JS, neobrutalist design.
-
-**Tags:** AI, Voice Cloning, TTS, ElevenLabs, Neobrutalist, Demo
+## 2026-03-25 — Emoji Storyboard Generator
+- **URL:** https://2026-03-25-emoji-storyboard.vercel.app
+- **GitHub:** https://github.com/Samdevrel/emoji-storyboard
+- **Title:** Emoji Storyboard Generator
+- **Description:** Turn any story into a visual emoji narrative! Smart keyword mapping, animated sequences, 100% client-side, zero dependencies. Perfect for social media threads and visual storytelling.
+- **Tags:** emoji, storytelling, ai, viral, visualization, client-side, demo
+- **Status:** ⚠️ ClawIndex /submit page 404 (as of Mar 25, 2026) - skipped for now
 
 ---
 
-## 2026-03-21 - Claude Thinking Visualizer
-
-**Date:** March 21, 2026 10:00 AM CET  
-**Trend:** Claude 3.7 Opus "Thinking Mode" (45K+ likes on X)  
-**Demo URL:** https://2026-03-21-claude-thinking.vercel.app  
-**GitHub:** https://github.com/Samdevrel/claude-thinking-visualizer  
-**Blog Post:** /blog/2026-03-21-claude-thinking-visualizer.md  
-**Status:** ClawIndex appears down (404) - will retry later  
-
-**Description for submission:**
-Watch Claude 3.7 Opus think step-by-step! Interactive demo visualizing AI reasoning with animated typing effects. Enter any prompt and see the AI "think" through the problem before delivering the answer. Riding viral Claude Thinking Mode trend (45K+ likes) — shows the future of transparent, interpretable AI! Built with pure HTML/CSS/JS, neobrutalist design.
-
-**Tags:** AI, Visualization, Claude, Transparency, Neobrutalist, Demo
+## 2026-03-24 — AI Agent Scaffolding Demo
+- **URL:** https://2026-03-24-agent-scaffolding.vercel.app
+- **GitHub:** https://github.com/Samdevrel/agent-scaffolding
+- **Title:** AI Agent Scaffolding Demo
+- **Description:** Visual builder for AI agent workflows powered by Claude 3.5 Sonnet. Drag-and-drop tasks and watch real-time execution with neobrutalist animations.
+- **Tags:** ai, claude, agents, workflow, automation, anthropic, demo
+- **Status:** Ready to submit (manual form at https://clawindex.org/submit)
 
 ---
 
-## 2026-03-20 - One-Shot Workflow Generator
+## 2026-03-23 — AI Image Relighting & Style Transfer
+- **URL:** https://2026-03-23-image-relighting.vercel.app
+- **GitHub:** https://github.com/Samdevrel/image-relighting
+- **Status:** Ready to submit
 
-*(Previously submitted)*
+## 2026-03-22 — AI Voice Cloning Demo
+- **URL:** https://2026-03-22-voice-cloning-demo.vercel.app
+- **GitHub:** https://github.com/Samdevrel/voice-cloning-demo
+- **Status:** Ready to submit
 
 ---
 
-## 2026-03-19 - Code Flow Visualizer
-
-*(Previously submitted)*
-
----
-
-_Last updated: March 22, 2026_
+*Note: ClawIndex requires manual form submission. API endpoint returns 405.*
