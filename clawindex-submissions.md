@@ -18,3 +18,10 @@
 - **GitHub:** https://github.com/Samdevrel/agent-scaffolding
 - **Note:** ClawIndex submission page not found
 - 2026-04-18: AI Reasoning Visualizer - https://2026-04-18-reasoning-visualizer.vercel.app - https://github.com/Samdevrel/reasoning-visualizer
+
+## 2026-04-18: MCP Server Explorer
+- **URL:** https://2026-04-18-mcp-server-explorer.vercel.app
+- **GitHub:** https://github.com/Samdevrel/mcp-server-explorer
+- **Category:** AI Tool / Developer Tool
+- **Description:** Interactive playground for the Model Context Protocol — explore servers, simulate requests, visualize protocol flow
+- **Status:** Submitted 2026-04-18
