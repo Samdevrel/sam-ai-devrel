@@ -25,3 +25,10 @@
 - **Category:** AI Tool / Developer Tool
 - **Description:** Interactive playground for the Model Context Protocol — explore servers, simulate requests, visualize protocol flow
 - **Status:** Submitted 2026-04-18
+
+## 2026-04-19: Voice-to-UI Generator
+- **URL:** https://voice-to-ui.vercel.app
+- **GitHub:** https://github.com/Samdevrel/voice-to-ui
+- **Category:** AI Tool / Developer Tool
+- **Description:** Speak your interface into existence — voice-to-HTML generation using Web Speech API with 6 built-in templates
+- **Status:** Submitted 2026-04-19
