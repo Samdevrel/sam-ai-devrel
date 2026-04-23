@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Workflow Visualizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Orbitron', monospace;
+            background-color: #0a0a0a;
+            color: #39FF14;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            font-size: 3rem;
+            color: #FF1493;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #FF1493;
+        }
+        .input-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        #goal-input {
+            width: 80%;
+            max-width: 600px;
+            padding: 15px;
+            font-size: 1.5rem;
+            background-color: #1a1a1a;
+            border: 3px solid #00D4FF;
+            color: #39FF14;
+            border-radius: 0;
+            box-shadow: 0 0 15px #00D4FF;
+        }
+        .example-goals {
+            margin-top: 10px;
+        }
+        .example-goals button {
+            margin: 5px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            background-color: #FF1493;
+            color: #0a0a0a;
+            border: none;
+            cursor: pointer;
+            border-radius: 0;
+            box-shadow: 0 0 10px #FF1493;
+        }
+        .example-goals button:hover {
+            background-color: #39FF14;
+        }
+        #visualizer {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+        #graph {
+            flex: 2;
+            height: 500px;
+            border: 3px solid #00D4FF;
+            background-color: #1a1a1a;
+            position: relative;
+        }
+        #timeline {
+            flex: 1;
+            margin-left: 20px;
+            border: 3px solid #FF1493;
+            background-color: #1a1a1a;
+            padding: 10px;
+            overflow-y: auto;
+            height: 500px;
+        }
+        #timeline h3 {
+            color: #00D4FF;
+            font-size: 1.5rem;
+        }
+        .step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #0a0a0a;
+            border: 1px solid #39FF14;
+            border-radius: 0;
+        }
+        .step .tool {
+            font-weight: bold;
+            color: #FF1493;
+        }
+        .step .input, .step .output {
+            margin-top: 5px;
+            color: #39FF14;
+        }
+        .step .status {
+            color: #00D4FF;
+            font-style: italic;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #1a1a1a;
+            border: 1px solid #39FF14;
+            margin-top: 10px;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #39FF14;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        #summary {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            color: #00D4FF;
+            display: none;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+        @media (max-width: 768px) {
+            #visualizer {
+                flex-direction: column;
+            }
+            #graph {
+                height: 300px;
+            }
+            #timeline {
+                margin-left: 0;
+                margin-top: 20px;
+                height: 300px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .example-goals button {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Agent Workflow Visualizer</h1>
+    <div class="input-section">
+        <input type="text" id="goal-input" placeholder="Enter your goal/task...">
+        <div class="example-goals">
+            <button onclick="setExample('Book a flight from Zurich to Tokyo for next Friday')">Book a flight</button>
+            <button onclick="setExample('Build a REST API for a todo app')">Build REST API</button>
+            <button onclick="setExample('Find the best Italian restaurant near me')">Find restaurant</button>
+            <button onclick="setExample('Create a marketing email campaign')">Email campaign</button>
+            <button onclick="setExample('Analyze Q4 revenue data and create a report')">Revenue report</button>
+        </div>
+    </div>
+    <div id="visualizer">
+        <div id="graph">
+            <canvas id="workflow-canvas"></canvas>
+        </div>
+        <div id="timeline">
+            <h3>Timeline</h3>
+            <div id="timeline-steps"></div>
+        </div>
+    </div>
+    <div id="summary"></div>
+    <script>
+        const canvas = document.getElementById('workflow-canvas');
+        const ctx = canvas.getContext('2d');
+        const timelineSteps = document.getElementById('timeline-steps');
+        const summary = document.getElementById('summary');
+        const goalInput = document.getElementById('goal-input');
+
+        let nodes = [];
+        let connections = [];
+        let currentStep = 0;
+        let intervalId;
+
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function drawGraph() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            connections.forEach(conn => {
+                ctx.strokeStyle = '#39FF14';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(nodes[conn.from].x, nodes[conn.from].y);
+                ctx.lineTo(nodes[conn.to].x, nodes[conn.to].y);
+                ctx.stroke();
+            });
+            nodes.forEach((node, index) => {
+                ctx.fillStyle = node.active ? '#FF1493' : '#00D4FF';
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 20, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = '#0a0a0a';
+                ctx.font = '12px Orbitron';
+                ctx.textAlign = 'center';
+                ctx.fillText(node.label.substring(0, 8), node.x, node.y + 5);
+            });
+        }
+
+        function addNode(label, x, y) {
+            nodes.push({ label, x, y, active: false });
+        }
+
+        function addConnection(from, to) {
+            connections.push({ from, to });
+        }
+
+        function typeWriter(element, text, speed = 50) {
+            let i = 0;
+            element.textContent = '';
+            const timer = setInterval(() => {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(timer);
+                }
+            }, speed);
+        }
+
+        const workflows = {
+            "Book a flight from Zurich to Tokyo for next Friday": [
+                { tool: 'web_search', input: 'Flight options Zurich to Tokyo next Friday', output: 'Found flights from Swiss Air, ANA, etc. Prices from $800.', status: 'Completed' },
+                { tool: 'calculator', input: 'Calculate best deal based on price and duration', output: 'Best: Swiss Air, $850, 12h duration.', status: 'Completed' },
+                { tool: 'book_flight', input: 'Book Swiss Air flight ZRH to NRT on 2023-10-13', output: 'Booking confirmed. Reference: ABC123.', status: 'Completed' }
+            ],
+            "Build a REST API for a todo app": [
+                { tool: 'code_write', input: 'Design API endpoints: GET, POST, PUT, DELETE for todos', output: 'Code generated: app.js with Express routes.', status: 'Completed' },
+                { tool: 'file_read', input: 'Read package.json for dependencies', output: 'Dependencies: express, mongoose.', status: 'Completed' },
+                { tool: 'code_execute', input: 'Run npm install and node app.js', output: 'API running on localhost:3000. Tested endpoints.', status: 'Completed' }
+            ],
+            "Find the best Italian restaurant near me": [
+                { tool: 'location_search', input: 'Find Italian restaurants near [user location]', output: 'Top: Trattoria Roma, 4.8 stars, 1km away.', status: 'Completed' },
+                { tool: 'web_search', input: 'Reviews for Trattoria Roma', output: 'Highly rated for pasta and ambiance.', status: 'Completed' },
+                { tool: 'map_display', input: 'Show directions to Trattoria Roma', output: 'Map displayed. Estimated time: 10 min.', status: 'Completed' }
+            ],
+            "Create a marketing email campaign": [
+                { tool: 'data_analyze', input: 'Analyze customer data for segments', output: 'Segments: New users, loyal customers.', status: 'Completed' },
+                { tool: 'content_generate', input: 'Generate email templates', output: 'Templates created: Welcome, Promotion.', status: 'Completed' },
+                { tool: 'email_send', input: 'Send campaign to 10,000 subscribers', output: 'Campaign sent. Open rate: 25%.', status: 'Completed' }
+            ],
+            "Analyze Q4 revenue data and create a report": [
+                { tool: 'file_read', input: 'Read Q4 revenue CSV', output: 'Data loaded: 5000 rows.', status: 'Completed' },
+                { tool: 'data_visualize', input: 'Generate charts for revenue trends', output: 'Charts: Line graph showing 15% growth.', status: 'Completed' },
+                { tool: 'report_write', input: 'Compile report with insights', output: 'Report: PDF generated with summary.', status: 'Completed' }
+            ]
+        };
+
+        function runSimulation(goal) {
+            if (!workflows[goal]) return;
+            nodes = [];
+            connections = [];
+            currentStep = 0;
+            timelineSteps.innerHTML = '';
+            summary.style.display = 'none';
+            addNode('Start', 50, 250);
+            let prevIndex = 0;
+            workflows[goal].forEach((step, index) => {
+                const x = 150 + index * 150;
+                const y = 250;
+                addNode(step.tool, x, y);
+                addConnection(prevIndex, prevIndex + 1);
+                prevIndex++;
+            });
+            addNode('Complete', 150 + workflows[goal].length * 150, 250);
+            addConnection(prevIndex, prevIndex + 1);
+            drawGraph();
+
+            intervalId = setInterval(() => {
+                if (currentStep >= workflows[goal].length + 1) {
+                    clearInterval(intervalId);
+                    summary.textContent = `Goal "${goal}" completed successfully!`;
+                    summary.style.display = 'block';
+                    return;
+                }
+                if (currentStep < workflows[goal].length) {
+                    const step = workflows[goal][currentStep];
+                    const stepDiv = document.createElement('div');
+                    stepDiv.className = 'step';
+                    stepDiv.innerHTML = `<div class="tool">${step.tool}</div><div class="input">Input: ${step.input}</div><div class="output">Output: <span id="output-${currentStep}"></span></div><div class="status">Status: <span id="status-${currentStep}">Executing...</span></div><div class="progress-bar"><div class="progress-fill" id="progress-${currentStep}"></div></div>`;
+                    timelineSteps.appendChild(stepDiv);
+                    nodes[currentStep + 1].active = true;
+                    drawGraph();
+                    setTimeout(() => {
+                        typeWriter(document.getElementById(`output-${currentStep}`), step.output);
+                        document.getElementById(`status-${currentStep}`).textContent = step.status;
+                        document.getElementById(`progress-${currentStep}`).style.width = '100%';
+                        nodes[currentStep + 1].active = false;
+                        nodes[currentStep + 2].active = true;
+                        drawGraph();
+                    }, 1000);
+                } else {
+                    nodes[currentStep + 1].active = false;
+                    nodes[currentStep + 2].active = true;
+                    drawGraph();
+                }
+                currentStep++;
+            }, 3000);
+        }
+
+        function setExample(goal) {
+            goalInput.value = goal;
+            runSimulation(goal);
+        }
+
+        goalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                runSimulation(goalInput.value);
+            }
+        });
+    </script>
+</body>
+</html>
