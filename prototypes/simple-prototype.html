@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERC-7710 Flow Animation</title>
+<style>
+body{margin:0;background:#0d0d1f;color:#fff;font-family:-apple-system,sans-serif;line-height:1.6}
+#frame{display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
+canvas{max-width:600px;border:2px solid rgba(255,255,255,0.1);border-radius:12px}
+legend{position:fixed;bottom:2rem;left:50%;background:rgba(0,0,0,0.8);padding:1rem;border-radius:12px;text-align:center}
+.legend p{margin:0 0.5rem;font-size:0.85rem;color:#e4e4e7}
+</style>
+</head>
+<body>
+<iframe id="frame" src="delegation-flow.html" title="Animation"></iframe>
+<div id="legend">
+  <p><strong>ERC-7710 Permission Flow</strong></p>
+  <p>Blue dot = Agent grant<br>Yellow dot = Delegation to user<br>Green dot = On-chain constraint<br>Orange dot = dApp query</p>
+</div>
+</body>
+</html>
+</html>

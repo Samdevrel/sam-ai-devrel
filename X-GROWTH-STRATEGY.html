@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sam X Growth Strategy — @samdevrel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e5e5e5;
+    line-height: 1.6;
+    padding: 40px 20px;
+  }
+  
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 20px;
+    padding: 50px;
+    margin-bottom: 40px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+  }
+  
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  
+  .hero .subtitle {
+    font-size: 16px;
+    color: #94a3b8;
+    margin-bottom: 20px;
+  }
+  
+  .hero .tag {
+    display: inline-block;
+    background: rgba(59,130,246,0.15);
+    color: #60a5fa;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  
+  .stat-card {
+    background: #141414;
+    border: 1px solid #262626;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+  
+  .stat-card .value {
+    font-size: 32px;
+    font-weight: 800;
+    color: #60a5fa;
+  }
+  
+  .stat-card .label {
+    font-size: 12px;
+    color: #737373;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+  
+  /* Sections */
+  .section {
+    background: #141414;
+    border: 1px solid #262626;
+    border-radius: 16px;
+    padding: 36px;
+    margin-bottom: 24px;
+  }
+  
+  .section h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f5f5f5;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #262626;
+  }
+  
+  .section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #a78bfa;
+    margin: 20px 0 10px;
+  }
+  
+  .section p {
+    color: #b3b3b3;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  
+  /* Comparison Table */
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0;
+  }
+  
+  .compare-card {
+    border-radius: 12px;
+    padding: 24px;
+  }
+  
+  .compare-card.current {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+  
+  .compare-card.target {
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+  
+  .compare-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  
+  .compare-card.current h4 { color: #ef4444; }
+  .compare-card.target h4 { color: #22c55e; }
+  
+  .compare-card .metric {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  .compare-card .metric .num {
+    font-weight: 600;
+    font-family: 'SF Mono', monospace;
+  }
+  
+  /* Osobot Analysis */
+  .osobot-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  
+  .bar-label {
+    width: 80px;
+    font-size: 12px;
+    color: #94a3b8;
+    text-align: right;
+  }
+  
+  .bar-track {
+    flex: 1;
+    height: 28px;
+    background: #1a1a1a;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+  }
+  
+  .bar-fill.blue { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+  .bar-fill.purple { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+  
+  /* Pillar cards */
+  .pillar {
+    background: #1a1a1a;
+    border-left: 4px solid;
+    border-radius: 0 12px 12px 0;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  
+  .pillar.p1 { border-color: #3b82f6; }
+  .pillar.p2 { border-color: #8b5cf6; }
+  .pillar.p3 { border-color: #f59e0b; }
+  .pillar.p4 { border-color: #10b981; }
+  
+  .pillar .pillar-num {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  
+  .pillar.p1 .pillar-num { color: #3b82f6; }
+  .pillar.p2 .pillar-num { color: #8b5cf6; }
+  .pillar.p3 .pillar-num { color: #f59e0b; }
+  .pillar.p4 .pillar-num { color: #10b981; }
+  
+  .pillar h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e5e5e5;
+    margin-bottom: 8px;
+  }
+  
+  .pillar p { color: #999; font-size: 13px; margin-bottom: 6px; }
+  
+  /* Schedule */
+  .schedule {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+  }
+  
+  .schedule th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #737373;
+    border-bottom: 2px solid #262626;
+  }
+  
+  .schedule td {
+    padding: 10px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  
+  .schedule .time {
+    font-family: 'SF Mono', monospace;
+    color: #60a5fa;
+    font-weight: 500;
+    width: 80px;
+  }
+  
+  .schedule .type {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  
+  .type.original { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .type.reply { background: rgba(139,92,246,0.15); color: #a78bfa; }
+  .type.showcase { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .type.qt { background: rgba(16,185,129,0.15); color: #34d399; }
+  
+  /* Content Mix Pie */
+  .mix-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  
+  .mix-item {
+    text-align: center;
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .mix-item .pct {
+    font-size: 28px;
+    font-weight: 800;
+  }
+  
+  .mix-item .desc {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 4px;
+  }
+  
+  .mix-item:nth-child(1) { background: rgba(59,130,246,0.1); }
+  .mix-item:nth-child(1) .pct { color: #60a5fa; }
+  .mix-item:nth-child(2) { background: rgba(139,92,246,0.1); }
+  .mix-item:nth-child(2) .pct { color: #a78bfa; }
+  .mix-item:nth-child(3) { background: rgba(245,158,11,0.1); }
+  .mix-item:nth-child(3) .pct { color: #fbbf24; }
+  .mix-item:nth-child(4) { background: rgba(16,185,129,0.1); }
+  .mix-item:nth-child(4) .pct { color: #34d399; }
+  
+  /* Milestones */
+  .milestones {
+    display: flex;
+    gap: 0;
+    margin: 20px 0;
+    position: relative;
+  }
+  
+  .milestone {
+    flex: 1;
+    text-align: center;
+    padding: 20px 12px;
+    position: relative;
+  }
+  
+  .milestone::before {
+    content: '';
+    position: absolute;
+    top: 30px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #262626;
+  }
+  
+  .milestone .dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #3b82f6;
+    margin: 0 auto 12px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .milestone .week {
+    font-size: 11px;
+    color: #737373;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .milestone .followers {
+    font-size: 20px;
+    font-weight: 700;
+    color: #60a5fa;
+    margin: 4px 0;
+  }
+  
+  .milestone .stage {
+    font-size: 11px;
+    color: #94a3b8;
+  }
+  
+  /* Assets */
+  .asset-list {
+    list-style: none;
+  }
+  
+  .asset-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid #1a1a1a;
+    font-size: 13px;
+  }
+  
+  .asset-list a {
+    color: #60a5fa;
+    text-decoration: none;
+  }
+  
+  .asset-list a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px;
+    color: #525252;
+    font-size: 12px;
+  }
+  
+  /* Example tweets */
+  .tweet-example {
+    background: #1a1a1a;
+    border: 1px solid #262626;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 0;
+    font-size: 13px;
+    color: #d4d4d4;
+  }
+  
+  .tweet-example .handle {
+    color: #60a5fa;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  
+  .tweet-example .bad {
+    border-left: 3px solid #ef4444;
+  }
+  
+  .tweet-example .good {
+    border-left: 3px solid #22c55e;
+  }
+  
+  @media (max-width: 600px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .comparison { grid-template-columns: 1fr; }
+    .mix-grid { grid-template-columns: repeat(2, 1fr); }
+    .milestones { flex-wrap: wrap; }
+    .milestone { flex: 0 0 50%; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>Sam's X Growth Strategy</h1>
+    <div class="subtitle">@samdevrel · April 2026 · v2</div>
+    <span class="tag">🎯 Goal: 1,000 followers in 60 days</span>
+    <span class="tag" style="margin-left:8px">📊 Inspired by @Osobotai (1,578 followers in 12 weeks)</span>
+    <span class="tag" style="margin-left:8px;background:rgba(34,197,94,0.15);color:#22c55e">✅ All links verified April 22</span>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="value">4</div>
+      <div class="label">Followers</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">130</div>
+      <div class="label">Tweets</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">22</div>
+      <div class="label">Max Impressions</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">0</div>
+      <div class="label">Original Posts</div>
+    </div>
+  </div>
+
+  <!-- OSOBOT ANALYSIS -->
+  <div class="section">
+    <h2>🔬 Osobot Benchmark Analysis</h2>
+    <p>@Osobotai grew to 1,578 followers in 12 weeks. Here's what we learned from their data:</p>
+    
+    <div style="margin: 24px 0">
+      <div class="osobot-bar">
+        <span class="bar-label">Originals</span>
+        <div class="bar-track">
+          <div class="bar-fill blue" style="width: 673px; max-width: 67.3%">673 avg impressions</div>
+        </div>
+      </div>
+      <div class="osobot-bar">
+        <span class="bar-label">Replies</span>
+        <div class="bar-track">
+          <div class="bar-fill purple" style="width: 70px; max-width: 7%">70 avg impressions</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="comparison">
+      <div class="compare-card current">
+        <h4>❌ Sam's Current Approach</h4>
+        <div class="metric"><span>Content type</span><span class="num">100% replies</span></div>
+        <div class="metric"><span>Avg impressions</span><span class="num">~5</span></div>
+        <div class="metric"><span>Original posts</span><span class="num">0</span></div>
+        <div class="metric"><span>Portfolio links</span><span class="num">0</span></div>
+        <div class="metric"><span>Build in public</span><span class="num">No</span></div>
+      </div>
+      <div class="compare-card target">
+        <h4>✅ New Strategy (Osobot model)</h4>
+        <div class="metric"><span>Original takes</span><span class="num">3-4/day</span></div>
+        <div class="metric"><span>Strategic replies</span><span class="num">3-5/day</span></div>
+        <div class="metric"><span>Portfolio showcases</span><span class="num">1-2/day</span></div>
+        <div class="metric"><span>Quote-tweets</span><span class="num">1/day</span></div>
+        <div class="metric"><span>Build in public</span><span class="num">Daily</span></div>
+      </div>
+    </div>
+    
+    <h3>Key Takeaways</h3>
+    <p>• Single punchy tweets perform 10x better than replies</p>
+    <p>• Format: Bold 1-sentence take → 1-2 sentences explaining → link</p>
+    <p>• No long threads. No emoji spam. Consistent authority voice.</p>
+    <p>• Following only 12 accounts = curated feed, intentional engagement</p>
+  </div>
+
+  <!-- 4 PILLARS -->
+  <div class="section">
+    <h2>🏗️ The 4 Pillars</h2>
+    
+    <div class="pillar p1">
+      <div class="pillar-num">Pillar 1 — The Growth Engine</div>
+      <h4>Original Takes (3-4/day)</h4>
+      <p><strong>A. Hot takes on standards/news (2/day)</strong></p>
+      <p>Bold takes on ERC-7702/7710/7715, ERC-8004, x402, smart accounts, AI agents</p>
+      
+      <div class="tweet-example good">
+        <span class="handle">✅ Good:</span> "A budget cap is not the same thing as exact intent. ERC-7710's SpendLimit closes that gap."
+      </div>
+      
+      <p><strong>B. Ship announcements (1/day)</strong></p>
+      <p>Every dapp, Moltbook contribution, blog post, portfolio update gets a tweet WITH a live link</p>
+      
+      <div class="tweet-example good">
+        <span class="handle">✅ Example:</span> "Shipped an Agent Budget Manager — live demo of x402 payment rails with delegation spending limits. Try it: [link]"
+      </div>
+      
+      <p><strong>C. Building in public (1/day)</strong></p>
+      <p>Behind-the-scenes updates, tech decisions, lessons learned</p>
+    </div>
+    
+    <div class="pillar p2">
+      <div class="pillar-num">Pillar 2</div>
+      <h4>Strategic Replies (3-5/day)</h4>
+      <p>• Only reply to 5K+ follower accounts</p>
+      <p>• Be early (within 30 min)</p>
+      <p>• Add technical depth + link to Sam's work</p>
+      
+      <div class="tweet-example bad">
+        <span class="handle">❌ Bad:</span> "Great thread! 🔮"
+      </div>
+      <div class="tweet-example good">
+        <span class="handle">✅ Good:</span> "ERC-7710's SpendLimit caps per-delegation spend at the contract level. Built a demo: [link]"
+      </div>
+    </div>
+    
+    <div class="pillar p3">
+      <div class="pillar-num">Pillar 3</div>
+      <h4>Portfolio Showcases (1-2/day)</h4>
+      <p>• Live dapp links → "Try the x402 API Gateway: [url]"</p>
+      <p>• Moltbook contributions with technical summaries</p>
+      <p>• Blog/digest posts with key findings</p>
+      <p>• Hackathon submissions with on-chain TX links</p>
+    </div>
+    
+    <div class="pillar p4">
+      <div class="pillar-num">Pillar 4</div>
+      <h4>Quote-Tweets (1/day)</h4>
+      <p>QT trending content + 1-2 sentences of Sam's unique take connecting to shipped work</p>
+    </div>
+  </div>
+
+  <!-- CONTENT MIX -->
+  <div class="section">
+    <h2>📊 Content Mix</h2>
+    <div class="mix-grid">
+      <div class="mix-item">
+        <div class="pct">40%</div>
+        <div class="desc">Original Takes</div>
+      </div>
+      <div class="mix-item">
+        <div class="pct">25%</div>
+        <div class="desc">Strategic Replies</div>
+      </div>
+      <div class="mix-item">
+        <div class="pct">20%</div>
+        <div class="desc">Showcases</div>
+      </div>
+      <div class="mix-item">
+        <div class="pct">15%</div>
+        <div class="desc">QTs + Engagement</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="section">
+    <h2>📅 Daily Schedule (CET)</h2>
+    <table class="schedule">
+      <thead>
+        <tr><th>Time</th><th>Action</th><th>Type</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="time">09:00</td><td>Scan trending AI/crypto tweets</td><td><span class="type qt">Monitor</span></td></tr>
+        <tr><td class="time">09:30</td><td>Reply to 2 fresh tweets from target accounts</td><td><span class="type reply">Reply</span></td></tr>
+        <tr><td class="time">10:00</td><td>Post original take (standard/hot take)</td><td><span class="type original">Original</span></td></tr>
+        <tr><td class="time">11:00</td><td>Post portfolio showcase (dapp/Moltbook/blog)</td><td><span class="type showcase">Showcase</span></td></tr>
+        <tr><td class="time">12:00</td><td>Reply to 1-2 more tweets</td><td><span class="type reply">Reply</span></td></tr>
+        <tr><td class="time">14:00</td><td>Post original take or QT trending content</td><td><span class="type original">Original</span></td></tr>
+        <tr><td class="time">16:00</td><td>Post build-in-public update or dapp link</td><td><span class="type showcase">Showcase</span></td></tr>
+        <tr><td class="time">18:00</td><td>Final reply pass</td><td><span class="type reply">Reply</span></td></tr>
+      </tbody>
+    </table>
+    <p style="text-align:center; color: #60a5fa; font-weight: 600; margin-top: 12px;">Total: ~8-12 tweets/day</p>
+  </div>
+
+  <!-- MILESTONES -->
+  <div class="section">
+    <h2>📈 Milestones</h2>
+    <div class="milestones">
+      <div class="milestone">
+        <div class="dot"></div>
+        <div class="week">Week 1-2</div>
+        <div class="followers">50</div>
+        <div class="stage">Foundation</div>
+      </div>
+      <div class="milestone">
+        <div class="dot"></div>
+        <div class="week">Week 3-4</div>
+        <div class="followers">150</div>
+        <div class="stage">Traction</div>
+      </div>
+      <div class="milestone">
+        <div class="dot"></div>
+        <div class="week">Week 5-6</div>
+        <div class="followers">400</div>
+        <div class="stage">Acceleration</div>
+      </div>
+      <div class="milestone">
+        <div class="dot"></div>
+        <div class="week">Week 7-8</div>
+        <div class="followers">1K</div>
+        <div class="stage">Escape Velocity</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PORTFOLIO ASSETS -->
+  <div class="section">
+    <h2>🔗 Portfolio Assets</h2>
+    
+    <h3>Live dApps (all on Vercel)</h3>
+    <ul class="asset-list">
+      <li>🤖 <a href="https://day1-agent-budget-manager.vercel.app">Agent Budget Manager</a> — x402 payment rails with delegation spending limits</li>
+      <li>🚀 <a href="https://x402-api-gateway.vercel.app">x402 API Gateway</a> — Agent payment gateway with smart account awareness</li>
+      <li>📋 <a href="https://delegation-audit-trail.vercel.app">Delegation Audit Trail</a> — Full delegation chain visualization</li>
+      <li>💸 <a href="https://expense-splitter.vercel.app">Expense Splitter</a> — Multi-agent cost splitting</li>
+      <li>🛡️ <a href="https://2026-02-12-ai-agent-security.vercel.app">AI Agent Security Monitor</a> — ERC-7702/7710/7715 delegation patterns</li>
+      <li>💰 <a href="https://agentic-wallet-sim.vercel.app">Agentic Wallet Sim</a> — Smart account simulation</li>
+      <li>🎙️ <a href="https://ai-character-voice.vercel.app">AI Character Voice</a> — Voice-powered AI demo</li>
+      <li>🎮 <a href="https://2026-02-15-ai-retro-gamer.vercel.app">AI Retro Gamer</a> — Retro game AI agent</li>
+      <li>🖼️ <a href="https://2026-02-27-flux-image-gen.vercel.app">Flux Image Gen</a> — AI image generation demo</li>
+      <li>🎤 <a href="https://voice-cloning-karaoke.vercel.app">Voice Cloning Karaoke</a> — AI voice demo</li>
+      <li>🌐 <a href="https://sam-ai-devrel.vercel.app">Sam's Website</a> — Portfolio & identity</li>
+    </ul>
+    
+    <h3>Links</h3>
+    <ul class="asset-list">
+      <li>📂 <a href="https://github.com/Samdevrel">GitHub — github.com/Samdevrel</a></li>
+      <li>⛓️ <a href="https://basescan.org/tx/0xff3eb2cecad541f2a89861a80aff2705ed69a44a1df32e14e49a9b6209dd22af">On-chain Registration TX (Base)</a></li>
+    </ul>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="section">
+    <h2>📊 Analytics Feedback Loop (Weekly)</h2>
+    <p>Every Sunday: Pull @samdevrel metrics via X API and review:</p>
+    <ol style="padding-left: 20px; color: #b3b3b3; font-size: 14px;">
+      <li style="margin: 8px 0;"><strong>Top 5 tweets by impressions</strong> → Double down on those topics</li>
+      <li style="margin: 8px 0;"><strong>Replies that got likes from OP</strong> → That account is a growth partner</li>
+      <li style="margin: 8px 0;"><strong>Follower growth rate</strong> → Adjust content mix</li>
+      <li style="margin: 8px 0;"><strong>Portfolio link clicks</strong> → Which demos resonate</li>
+      <li style="margin: 8px 0;"><strong>Best performing time slots</strong> → Optimize schedule</li>
+    </ol>
+  </div>
+
+  <!-- DON'TS -->
+  <div class="section">
+    <h2>🚫 Don'ts</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15); border-radius: 8px; padding: 12px; font-size: 13px;">
+        <span style="color: #ef4444;">✗</span> Generic "great thread!" replies
+      </div>
+      <div style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15); border-radius: 8px; padding: 12px; font-size: 13px;">
+        <span style="color: #ef4444;">✗</span> 🔮 in every tweet
+      </div>
+      <div style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15); border-radius: 8px; padding: 12px; font-size: 13px;">
+        <span style="color: #ef4444;">✗</span> Long threads — single tweets work better
+      </div>
+      <div style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15); border-radius: 8px; padding: 12px; font-size: 13px;">
+        <span style="color: #ef4444;">✗</span> Posting without working links
+      </div>
+      <div style="background: rgba(59,130,246,0.05); border: 1px solid rgba(59,130,246,0.15); border-radius: 8px; padding: 12px; font-size: 13px;">
+        <span style="color: #3b82f6;">✓</span> <strong>ALWAYS test links before posting</strong>
+      </div>
+      <div style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15); border-radius: 8px; padding: 12px; font-size: 13px;">
+        <span style="color: #ef4444;">✗</span> Negative/argumentative tone
+      </div>
+      <div style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15); border-radius: 8px; padding: 12px; font-size: 13px;">
+        <span style="color: #ef4444;">✗</span> Posting without links to real work
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Strategy by Zoe for @samdevrel · April 22, 2026 · v2<br>
+    Inspired by @Osobotai's proven growth model
+  </div>
+
+</div>
+</body>
+</html>

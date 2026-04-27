@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERC-7710: Permission Flow Visualization</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#0d0d1f;color:#e4e4e7;line-height:1.6;overflow:hidden}
+.canvas-container{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+canvas{max-width:1200px;width:100%;height:auto}
+.info-panel{position:fixed;bottom:2rem;left:2rem;background:rgba(0,0,0,0.8);color:#fff;padding:1rem 1.5rem;border-radius:12px;max-width:320px;backdrop-filter:blur(10px)}
+h1{margin:0 0 0.5rem;font-size:1.1rem;color:#fff}
+.info-panel p{margin:0.5rem 0;font-size:0.85rem;color:rgba(255,255,255,0.8)}
+.info-panel strong{color:#fff}
+.dot-legend{display:flex;gap:0.5rem;margin-top:1rem}
+.legend-item{display:flex;align-items:center;gap:0.35rem;font-size:0.75rem;color:rgba(255,255,255,0.7)}
+.legend-dot{width:12px;height:12px;border-radius:50%;}
+.dot-blue{background:#3b82f6}
+.dot-yellow{background:#f59e0b}
+.dot-green{background:#10b981}
+.dot-orange{background:#f97316}
+@media(max-width:600px){.info-panel{bottom:1rem;left:1rem;right:1rem;}}
+</style>
+</head>
+<body>
+<div class="canvas-container">
+    <canvas id="flow"></canvas>
+</div>
+
+<div class="info-panel">
+    <h1>ERC-7710: Permission Flow</h1>
+    <p><strong>Each dot</strong> = one permission grant (one row, constrained)</p>
+    <p>Watch how agent delegations merge, split, and flow through smart account layers.</p>
+    <div class="dot-legend">
+        <div class="legend-item"><span class="legend-dot dot-blue"></span> Agent → Grant</div>
+        <div class="legend-item"><span class="legend-dot dot-yellow"></span> Delegate</div>
+        <div class="legend-item"><span class="legend-dot dot-green"></span> Constrain</div>
+        <div class="legend-item"><span class="legend-dot dot-orange"></span> dApp Query</div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('flow');
+const ctx = canvas.getContext('2d');
+
+// Colors (matching infographic)
+const colors = {
+    agent: '#3b82f6',
+    delegate: '#f59e0b',
+    constrain: '#10b981',
+    dapp: '#f97316'
+};
+
+// Particles representing delegations
+const particles = [];
+let delegationId = 0;
+
+// Create random delegations
+function addParticles(count, startAngle) {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    
+    for (let i = 0; i < count; i++) {
+        const angle = (startAngle + (i / count)) * Math.PI * 2;
+        const speed = 2 + Math.random() * 2;
+        const size = 4 + Math.random() * 6;
+        
+        particles.push({
+            x: centerX,
+            y: centerY,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            targetX: centerX + Math.cos(angle) * 150,
+            targetY: centerY + Math.sin(angle) * 150,
+            size,
+            color: colors.agent,
+            alpha: 1,
+            type: 'agent',
+            id: `agent-${delegationId++}`
+        });
+    }
+}
+
+// Add initial batch (agents granting permissions)
+addParticles(8, 0);
+
+// Add delegations (agents → grantee)
+function addDelegations() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    
+    particles.forEach(p => {
+        if (p.alpha > 0 && p.type === 'agent') return; // Already handled
+        
+        // Find nearest agent particle
+        const source = particles.find(sp => sp.type === 'agent' && sp.alpha > 0);
+        
+        if (!source) return;
+        
+        const dx = p.x - source.x;
+        const dy = p.y - source.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx);
+        
+        // Move delegation particles
+        p.x += Math.cos(angle) * 2;
+        p.y += Math.sin(angle) * 2;
+        p.vx = Math.cos(angle) * 1;
+        p.vy = Math.sin(angle) * 1;
+        p.targetX = source.x;
+        p.targetY = source.y;
+        p.type = 'delegation';
+        p.color = colors.delegate;
+        p.alpha = 0;
+    });
+}
+
+// Add constraint layers
+function addConstraints() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    
+    particles.forEach(p => {
+        if (p.alpha > 0 && p.type !== 'dapp') return;
+        
+        if (p.type === 'delegation') {
+            // Add constraint circles around delegations
+            for (let i = 0; i < 4; i++) {
+                const offset = (i - 1.5) * 15;
+                particles.push({
+                    x: p.x + Math.cos(p.id) * offset,
+                    y: p.y + Math.sin(p.id) * offset,
+                    vx: 0, vy: 0,
+                    targetX: p.x,
+                    targetY: p.y,
+                    size: 8 + Math.random() * 4,
+                    color: colors.constrain,
+                    alpha: 0.4,
+                    type: 'constraint',
+                    id: `constr-${p.id}-${i}`
+                });
+            }
+        }
+    });
+}
+
+// Animate query particles (dApps requesting permissions)
+function animateQueries() {
+    let queryId = 0;
+    let spawnX, spawnY;
+    
+    function spawnQuery() {
+        const side = Math.random() > 0.5 ? 'left' : 'right';
+        spawnX = side === 'left' ? 50 : canvas.width - 50;
+        spawnY = Math.random() * canvas.height * 0.3 + canvas.height * 0.35;
+        
+        particles.push({
+            x: spawnX,
+            y: spawnY,
+            vx: side === 'left' ? 1 : -1,
+            vy: (Math.random() - 0.5) * 0.5,
+            targetX: canvas.width / 2,
+            targetY: canvas.height / 2,
+            size: 6,
+            color: colors.dapp,
+            alpha: 0,
+            type: 'query',
+            id: `query-${queryId++}`
+        });
+    }
+    
+    // Spawn queries periodically
+    setInterval(() => {
+        spawnQuery();
+        spawnQuery();
+    }, 1500);
+}
+
+// Animation loop
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+
+function animate() {
+    ctx.fillStyle = '#0d0d1f';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Update and draw particles
+    particles.forEach((p, i) => {
+        // Move toward target
+        if (p.targetX !== undefined) {
+            const dx = p.targetX - p.x;
+            const dy = p.targetY - p.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist > 2) {
+                const angle = Math.atan2(dy, dx);
+                p.x += Math.cos(angle) * Math.min(dist * 0.02, 2);
+                p.y += Math.sin(angle) * Math.min(dist * 0.02, 2);
+            }
+        }
+        
+        // Animate alpha based on type
+        if (p.type === 'query') {
+            p.alpha = Math.min(p.alpha + 0.01, 1);
+        }
+        
+        // Draw
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color.replace(')', ', 0.6)'; // Hex to rgba
+        ctx.fill();
+    });
+}
+
+// Stages: grant → delegate → constrain → query
+let stage = 0;
+const stages = [
+    () => { addParticles(6, stage * 2); animateQueries(); stage++ },
+    () => { addDelegations(); addConstraints(); stage++ },
+    () => { addConstraints(); animate(); stage = 0 }, // Loop
+];
+
+// Run stages sequentially with delays
+function runStages() {
+    const currentStage = stages[stage % stages.length]();
+    stage++;
+    
+    if (stage % stages.length === 0) {
+        setTimeout(runStages, 2000);
+    }
+}
+
+runStages();
+animate();
+</script>
+</body>
+</html>

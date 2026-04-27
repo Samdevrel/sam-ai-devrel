@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERC-7710: Permission Flow Visualization</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#0d0d1f;color:#e4e4e7;line-height:1.6;overflow:hidden}
+.canvas-wrapper{position:relative;width:100vw;height:100vh;min-height:600px;background:#0d0d1f}
+canvas{display:block;width:100%;height:100%}
+.info-panel{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:1rem 1.5rem;border-radius:12px;max-width:340px;width:90%;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1)}
+h1{margin:0 0 0.5rem;font-size:1rem;color:#fff}
+.info-panel p{margin:0.5rem 0;font-size:0.8rem;color:rgba(255,255,255,0.8)}
+.info-panel strong{color:#fff}
+.dot-legend{display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.8rem;justify-content:center}
+.legend-item{display:flex;align-items:center;gap:0.4rem;font-size:0.7rem;color:rgba(255,255,255,0.7)}
+.legend-dot{width:10px;height:10px;border-radius:50%;}
+.dot-blue{background:#3b82f6}
+.dot-yellow{background:#f59e0b}
+.dot-green{background:#10b981}
+.dot-orange{background:#f97316}
+</style>
+</head>
+<body>
+<div class="canvas-wrapper">
+    <canvas id="flow"></canvas>
+    <div class="info-panel">
+        <h1>ERC-7710: Permission Flow</h1>
+        <p><strong>Each dot</strong> = one permission grant (constrained row)</p>
+        <p>Agents delegate permissions → Smart accounts constrain → dApps query</p>
+        <div class="dot-legend">
+            <div class="legend-item"><span class="legend-dot dot-blue"></span> Agent</div>
+            <div class="legend-item"><span class="legend-dot dot-yellow"></span> Delegate</div>
+            <div class="legend-item"><span class="legend-dot dot-green"></span> Constrain</div>
+            <div class="legend-item"><span class="legend-dot dot-orange"></span> Query</div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('flow');
+    const ctx = canvas.getContext('2d');
+    const wrapper = document.querySelector('.canvas-wrapper');
+
+    // Colors
+    const colors = {
+        agent: '#3b82f6',
+        delegate: '#f59e0b',
+        constrain: '#10b981',
+        dapp: '#f97316'
+    };
+
+    // State
+    const particles = [];
+    let delegationId = 0;
+    let animationStarted = false;
+
+    // Resize canvas to fit wrapper
+    function resize() {
+        const rect = wrapper.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        console.log(`Canvas resized to ${canvas.width}x${canvas.height}`);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Create particles
+    function addParticles(count, startAngle) {
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        for (let i = 0; i < count; i++) {
+            const angle = startAngle + (i / count) * Math.PI * 2;
+            const speed = 1.5 + Math.random() * 1.5;
+            const size = 3 + Math.random() * 4;
+
+            particles.push({
+                x: centerX,
+                y: centerY,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                targetX: centerX + Math.cos(angle) * 120,
+                targetY: centerY + Math.sin(angle) * 120,
+                size,
+                color: colors.agent,
+                alpha: 1,
+                type: 'agent',
+                id: `agent-${delegationId++}`
+            });
+        }
+    }
+
+    // Add constraint circles around delegations
+    function addConstraintRings() {
+        particles.forEach(p => {
+            if (p.type === 'delegate' && p.alpha > 0) {
+                // Add 3 constraint rings
+                for (let i = 0; i < 3; i++) {
+                    const radius = 20 + i * 12;
+                    particles.push({
+                        x: p.x,
+                        y: p.y,
+                        vx: 0,
+                        vy: 0,
+                        targetX: p.x,
+                        targetY: p.y,
+                        size: radius,
+                        color: colors.constrain,
+                        alpha: 0.3 - i * 0.1,
+                        type: 'constraint',
+                        id: `constr-${p.id}-${i}`
+                    });
+                }
+            }
+        });
+    }
+
+    // Spawn query particles from edges
+    function spawnQueries() {
+        const side = Math.random() > 0.5 ? 'left' : 'right';
+        const spawnX = side === 'left' ? 40 : canvas.width - 40;
+        const spawnY = canvas.height * 0.3 + Math.random() * canvas.height * 0.4;
+
+        particles.push({
+            x: spawnX,
+            y: spawnY,
+            vx: side === 'left' ? 1.5 : -1.5,
+            vy: (Math.random() - 0.5) * 0.3,
+            targetX: canvas.width / 2,
+            targetY: canvas.height / 2,
+            size: 4,
+            color: colors.dapp,
+            alpha: 0.6,
+            type: 'query',
+            id: `query-${delegationId++}`
+        });
+    }
+
+    // Initialize particles
+    addParticles(6, 0);
+
+    // Periodic spawns
+    setInterval(spawnQueries, 1800);
+    setInterval(() => {
+        if (particles.filter(p => p.type === 'agent').length < 6) {
+            addParticles(2, Math.random() * Math.PI * 2);
+        }
+    }, 4000);
+
+    // Animation loop
+    function animate() {
+        ctx.fillStyle = '#0d0d1f';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach((p, i) => {
+            // Update position based on type
+            if (p.type === 'agent') {
+                // Move toward target radius
+                const dx = p.targetX - p.x;
+                const dy = p.targetY - p.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist > 3) {
+                    const angle = Math.atan2(dy, dx);
+                    p.x += Math.cos(angle) * 1.5;
+                    p.y += Math.sin(angle) * 1.5;
+                }
+            } else if (p.type === 'query') {
+                // Move toward center
+                const dx = p.targetX - p.x;
+                const dy = p.targetY - p.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist > 20) {
+                    const angle = Math.atan2(dy, dx);
+                    p.x += Math.cos(angle) * 1.5;
+                    p.y += Math.sin(angle) * 1.5;
+                } else {
+                    p.alpha = Math.max(p.alpha - 0.02, 0);
+                }
+            }
+
+            // Fade out old particles
+            if (p.type === 'constraint') {
+                p.alpha -= 0.002;
+            }
+
+            // Draw
+            if (p.alpha > 0) {
+                if (p.type === 'constraint') {
+                    // Draw ring
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.strokeStyle = p.color.replace(')', `, ${p.alpha})`).replace('rgb', 'rgba').replace('#', '');
+                    ctx.lineWidth = 2;
+                    ctx.globalAlpha = p.alpha;
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                } else {
+                    // Draw dot
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+        });
+
+        // Remove dead particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+            if (particles[i].alpha <= 0) {
+                particles.splice(i, 1);
+            }
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    // Start animation
+    animate();
+    animationStarted = true;
+});
+</script>
+</body>
+</html>

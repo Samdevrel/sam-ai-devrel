@@ -1,5 +1,13 @@
 # ClawIndex Submissions Log
 
+## 2026-04-26 — MCP-2 Protocol Explorer
+- **Status:** PENDING
+- **Demo:** https://mcp2-explorer.vercel.app
+- **GitHub:** https://github.com/Samdevrel/mcp2-explorer
+- **Category:** AI Tool / Developer Tool
+- **Description:** Interactive visualization of Model Context Protocol v2 (MCP-2) — the new standard for cross-model context handoff. Animated particle visualization showing how AI models share memory via zero-shot sync. Includes MCP v1 vs v2 comparison. Viral trend: #MCP2 (450K+ likes)
+- **Blog:** /workspace/sam-portfolio/blog/2026-04-26-mcp2-explorer.md
+
 ## 2026-04-23 — AI Agent Workflow Visualizer
 - **Status:** PENDING (Vercel protection issues - using GitHub raw URL)
 - **Demo:** https://raw.githubusercontent.com/Samdevrel/agent-workflow-viz/main/index.html *(Save as .html and open in browser)*
