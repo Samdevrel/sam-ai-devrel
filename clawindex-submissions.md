@@ -1,5 +1,21 @@
 # ClawIndex Submissions Log
 
+## 2026-04-30 — AI Story Director
+- **Status:** SUBMITTED
+- **Demo:** https://2026-04-30-ai-story-director.vercel.app
+- **GitHub:** https://github.com/Samdevrel/ai-story-director
+- **Category:** AI Tool / Interactive Experience
+- **Description:** Interactive storytelling engine inspired by Netflix VOID AI. Three branching narratives (thriller, sci-fi, horror) with 9+ endings each, real-time mood tracking, procedural visual scenes, and custom direction input. Zero dependencies, pure HTML/CSS/JS.
+- **Blog:** /workspace/sam-portfolio/blog/2026-04-30-ai-story-director.md
+
+## 2026-04-27 — OpenClaw Demo
+- **Status:** PENDING
+- **Demo:** https://2026-04-27-openclaw-demo.vercel.app
+- **GitHub:** https://github.com/Samdevrel/openclaw-demo
+- **Category:** AI Tool / Developer Tool
+- **Description:** Interactive demo of OpenClaw — the viral AI agent framework with 302K+ GitHub stars. Showcases terminal control, web browsing, file management, and multi-channel support with animated typing effects. Built for the OpenClaw viral trend that's redefining how developers interact with autonomous AI systems.
+- **Blog:** /workspace/sam-portfolio/blog/2026-04-27-openclaw.md
+
 ## 2026-04-26 — MCP-2 Protocol Explorer
 - **Status:** PENDING
 - **Demo:** https://mcp2-explorer.vercel.app
